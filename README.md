@@ -16,9 +16,12 @@
 ### APIs
 
  - Jobs 
-     - https://jobtechdev.se/api/jobs/historical/
+     - (Y) https://landing.jobs/api/v1
+     - (Y) https://stackoverflow.com/jobs/feed
+     - (Y) https://jobs.github.com/api
+     - (Y) http://api.dataatwork.org/v1/spec/ (http://dataatwork.org/data/)
+     - (M) https://jobtechdev.se/api/jobs/historical/
      - https://search.gov/developer/jobs.html
-     - http://dataatwork.org/data/
      - https://www.r-bloggers.com/accessing-open-data-portal-india-using-apis/
      - https://www.data.gov/developers/apis
      - https://api.data.gov/
