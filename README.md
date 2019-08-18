@@ -40,3 +40,10 @@ project.
  - Courses
     - https://www.kaggle.com/edx/course-study
     - https://www.kaggle.com/Madgrades/uw-madison-courses
+
+## Data Schema
+
+To simplify our job listing we'll have only a single fact table with the job vacancies and two other tables to aggregate
+data on companies and tags:
+
+![The star-schema diagram](https://raw.githubusercontent.com/gabfr/work-around-the-world/master/images/work-around-the-world-der.png)
