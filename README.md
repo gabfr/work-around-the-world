@@ -6,7 +6,7 @@ overwhelming because of the number of different places you have to go to find a 
 This project goals is to unify and provide a simple normalized and unified database of job vacancies from several data
 sources (datasets for historical purposes and APIs to more up-to-date jobs). The final data schema is a star-schema 
 model to ease querying through the jobs list, whereas the job listing is the fact and the company, skills and provider
-are the dimensions of our data modeling.
+are the dimensions of our data model.
 
 Below we have a detailed listing of our data sources, data model and each technology of the stack I used in this
 project.
