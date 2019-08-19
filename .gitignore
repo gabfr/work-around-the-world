@@ -5,6 +5,7 @@ __pycache__/
 .DS_Store
 .idea
 datasets/*
+datasets_alternatives
 dc.cfg
 
 # C extensions
