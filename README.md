@@ -17,7 +17,6 @@ project.
 
  - CSV
      - https://www.kaggle.com/PromptCloudHQ/us-technology-jobs-on-dicecom
-     - https://www.kaggle.com/PromptCloudHQ/us-jobs-on-monstercom
      - https://data.world/promptcloud/us-jobs-on-dice-com
  - JSON
      - https://jobtechdev.se/api/jobs/historical/
