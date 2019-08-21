@@ -14,7 +14,6 @@ class StageGithubJobsOperator(BaseOperator):
                  # conn_id = your-connection-name
                  redshift_conn_id,
                  http_conn_id,
-                 table,
                  max_pages=10,
                  *args, **kwargs):
 
@@ -22,7 +21,6 @@ class StageGithubJobsOperator(BaseOperator):
 
         self.redshift_conn_id = redshift_conn_id
         self.http_conn_id = http_conn_id
-        self.table = table
         self.max_pages = max_pages
 
     def execute(self, context):
