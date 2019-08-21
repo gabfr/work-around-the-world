@@ -123,7 +123,10 @@ class SqlQueries:
 
     select_jobtechdev_jobs_from_staging = ("""
         select distinct
-            md5(coalesce(agency_name, 'agency') || coalesce(job_title, 'title') || published_at) as id,
+            md5(
+                coalesce(agency_name, 'agency') || coalesce(job_title, 'title') || 
+                coalesce(job_description, 'job_desc') || published_at
+            ) as id,
             'jobtechdevse' as provider_id,
             REPLACE(TRIM(regexp_replace(translate(
                 LOWER(
@@ -158,5 +161,5 @@ class SqlQueries:
             TO_TIMESTAMP(published_at, 'YYYY-MM-DD') as published_at
         FROM
             staging_jobtechdev_jobs
-        WHERE remote_id_on_provider NOT IN (SELECT j.remote_id_on_provider FROM job_vacancies j WHERE j.provider_id = 'jobtechdevse');
+        WHERE id NOT IN (SELECT j.id FROM job_vacancies j);
     """)
