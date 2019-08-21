@@ -83,7 +83,8 @@ check_fact_table = DataQualityOperator(
     task_id='check_fact_table',
     dag=dag,
     redshift_conn_id="redshift",
-    tables=['job_vacancies']
+    tables=['job_vacancies'],
+    where_parameters="provider_id = 'dice_com'"
 )
 
 # Re-Create the staging table
