@@ -17,7 +17,7 @@ default_args = {
 dag = DAG('jobtechdev_se_historical_jobs_dag',
           default_args=default_args,
           description='Load the jobs dataset and insert into Redshift',
-          schedule_interval='0 * * * *'
+          schedule_interval='@once'
         )
 
 recreate_staging_table = PostgresOperator(
