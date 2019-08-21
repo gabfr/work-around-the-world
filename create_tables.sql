@@ -1,11 +1,12 @@
+drop table if exists public.job_vacancies;
 CREATE TABLE public.job_vacancies (
 	id VARCHAR(32) NOT NULL,
 	provider_id VARCHAR(255) NOT NULL DISTKEY,
-	remote_id_on_provider VARCHAR(100),
+	remote_id_on_provider VARCHAR(500),
 	remote_url VARCHAR(500),
 	location VARCHAR(255),
 	currency_code VARCHAR(3) DEFAULT NULL,
-	company_id VARCHAR(32),
+	company_id VARCHAR(500),
 	company_name VARCHAR(500),
 	title VARCHAR(1000),
 	description VARCHAR(65535),
@@ -19,16 +20,18 @@ CREATE TABLE public.job_vacancies (
 	CONSTRAINT job_vacancies_pkey PRIMARY KEY (id)
 );
 
+drop table if exists public.companies;
 CREATE TABLE public.companies (
-    id VARCHAR(32) NOT NULL,
-    name VARCHAR(500),
+    id VARCHAR(500) NOT NULL,
+    name VARCHAR(500) SORTKEY,
     remote_url VARCHAR(500) DEFAULT NULL,
 	CONSTRAINT companies_pkey PRIMARY KEY (id)
 );
 
+drop table if exists public.tags;
 CREATE TABLE public.tags (
-    tag VARCHAR(255) NOT NULL,
-	CONSTRAINT tags_pkey PRIMARY KEY (tag)
+    "tag" VARCHAR(255) NOT NULL,
+	CONSTRAINT tags_pkey PRIMARY KEY ("tag")
 );
 
 
