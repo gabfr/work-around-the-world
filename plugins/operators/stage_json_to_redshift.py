@@ -11,6 +11,7 @@ class StageJsonToRedshiftOperator(BaseOperator):
         FROM '{}'
         ACCESS_KEY_ID '{}'
         SECRET_ACCESS_KEY '{}'
+        {}
         COMPUPDATE OFF STATUPDATE OFF
         FORMAT AS JSON '{}'
     """
@@ -22,6 +23,7 @@ class StageJsonToRedshiftOperator(BaseOperator):
                  table="",
                  s3_bucket="",
                  s3_key="",
+                 extra_copy_parameters="",
                  json_path="auto",
                  *args, **kwargs):
 
@@ -32,6 +34,7 @@ class StageJsonToRedshiftOperator(BaseOperator):
         self.s3_key = s3_key
         self.aws_credentials_id = aws_credentials_id
         self.json_path = json_path
+        self.extra_copy_parameters = extra_copy_parameters
 
     def execute(self, context):
         aws_hook = AwsHook(self.aws_credentials_id)
@@ -49,6 +52,7 @@ class StageJsonToRedshiftOperator(BaseOperator):
             s3_path,
             credentials.access_key,
             credentials.secret_key,
+            self.extra_copy_parameters,
             self.json_path
         )
         redshift.run(formatted_sql)
