@@ -1,45 +1,4 @@
 class SqlQueries:
-    songplay_table_insert = ("""
-        SELECT
-                md5(events.sessionid || events.start_time) songplay_id,
-                events.start_time, 
-                events.userid, 
-                events.level, 
-                songs.song_id, 
-                songs.artist_id, 
-                events.sessionid, 
-                events.location, 
-                events.useragent
-                FROM (SELECT TIMESTAMP 'epoch' + ts/1000 * interval '1 second' AS start_time, *
-            FROM staging_events
-            WHERE page='NextSong') events
-            LEFT JOIN staging_songs songs
-            ON events.song = songs.title
-                AND events.artist = songs.artist_name
-                AND events.length = songs.duration
-    """)
-
-    user_table_insert = ("""
-        SELECT distinct userid, firstname, lastname, gender, level
-        FROM staging_events
-        WHERE page='NextSong'
-    """)
-
-    song_table_insert = ("""
-        SELECT distinct song_id, title, artist_id, year, duration
-        FROM staging_songs
-    """)
-
-    artist_table_insert = ("""
-        SELECT distinct artist_id, artist_name, artist_location, artist_latitude, artist_longitude
-        FROM staging_songs
-    """)
-
-    time_table_insert = ("""
-        SELECT start_time, extract(hour from start_time), extract(day from start_time), extract(week from start_time), 
-               extract(month from start_time), extract(year from start_time), extract(dayofweek from start_time)
-        FROM songplays
-    """)
 
     recreate_staging_dice_com_jobs_table = ("""
         DROP TABLE IF EXISTS staging_dice_com_jobs;
@@ -122,45 +81,82 @@ class SqlQueries:
         where page_url not in (select remote_id_on_provider from job_vacancies where provider_id = 'dice_com')
     """)
 
-    # df.withColumnRenamed('AG_NAMN', 'agency_name')
-    # .withColumnRenamed('ANTAL_AKT_PLATSER', 'number_of_acting_sites')
-    # .withColumnRenamed('ARBETSDRIFT', 'work_period')
-    # .withColumnRenamed('ARBETSTID', 'working_hours')
-    # .withColumnRenamed('BESKR_ARBETSDRIFT', 'working_hours_description')
-    # .withColumnRenamed('FORSTA_PUBLICERINGSDATUM', 'published_at')
-    # .withColumnRenamed('HEMSIDA', 'website')
-    # .withColumnRenamed('KOMMUN_KOD', 'community_code')
-    # .withColumnRenamed('ORGNR', 'company_number')
-    # .withColumnRenamed('PLATSBESKRIVNING', 'job_description')
-    # .withColumnRenamed('PLATSNUMMER', 'job_number')
-    # .withColumnRenamed('PLATSRUBRIK', 'job_title')
-    # .withColumnRenamed('POSTNR', 'zipcode')
-    # .withColumnRenamed('POSTORT', 'city')
-    # .withColumnRenamed('SISTA_ANSOK_PUBLDATUM', 'expires_at')
-    # .withColumnRenamed('TILLTRADE', 'urgency_level_description')
-    # .withColumnRenamed('VARAKTIGHET', 'duration')
-
     recreate_staging_jobtechdev_jobs_table = ("""
         DROP TABLE IF EXISTS staging_jobtechdev_jobs;
         CREATE TABLE staging_jobtechdev_jobs (
-            ADRESSLAND VARCHAR(500) DEFAULT NULL,
-            AG_NAMN VARCHAR(500),
-            ANTAL_AKT_PLATSER INT4,
-            ARBETSDRIFT VARCHAR(255),
-            ARBETSTID VARCHAR(255),
-            BESKR_ARBETSDRIFT VARCHAR(500),
-            FORSTA_PUBLICERINGSDATUM DATE SORTKEY,
-            HEMSIDA VARCHAR(500),
-            KOMMUN_KOD VARCHAR(500),
-            ORGNR VARCHAR(500),
-            PLATSBESKRIVNING VARCHAR(65535),
-            PLATSNUMMER VARCHAR(50),
-            PLATSRUBRIK VARCHAR(500),
-            POSTNR VARCHAR(8),
-            POSTORT VARCHAR(255),
-            SISTA_ANSOK_PUBLDATUM DATE, 
-            TILLTRADE VARCHAR(500),
-            VARAKTIGHET VARCHAR(255),
-            YRKE_ID INT8
+            address VARCHAR(500) DEFAULT NULL,
+            agency_name VARCHAR(500),
+            number_of_acting_sites INT4,
+            work_period VARCHAR(255),
+            working_hours VARCHAR(255),
+            working_hours_description VARCHAR(500),
+            published_at DATE SORTKEY,
+            website VARCHAR(500),
+            community_code VARCHAR(500),
+            company_number VARCHAR(500),
+            job_description VARCHAR(65535),
+            job_number VARCHAR(50),
+            job_title VARCHAR(500),
+            zipcode VARCHAR(8),
+            city VARCHAR(255),
+            expires_at DATE, 
+            urgency_level_description VARCHAR(500),
+            duration VARCHAR(255),
+            job_code VARCHAR(100)
         ) DISTSTYLE EVEN;
+    """)
+
+    select_jobtechdev_companies_from_staging = ("""
+        select distinct 
+            REPLACE(TRIM(regexp_replace(translate(
+                LOWER(agency_name),
+                'áàâãäåāăąèééêëēĕėęěìíîïìĩīĭḩóôõöōŏőùúûüũūŭůäàáâãåæçćĉčöòóôõøüùúûßéèêëýñîìíïş',
+                'aaaaaaaaaeeeeeeeeeeiiiiiiiihooooooouuuuuuuuaaaaaaeccccoooooouuuuseeeeyniiiis'
+            ), '[^a-z0-9\-]+', ' ')),' ', '-') as id,
+            agency_name AS name,
+            null as remote_url
+        from 
+            staging_jobtechdev_jobs
+        where
+            id not in (select id from companies);
+    """)
+
+    select_jobtechdev_jobs_from_staging = ("""
+        select distinct
+            md5(coalesce(agency_name, 'agency') || coalesce(job_title, 'title') || published_at) as id,
+            'jobtechdevse' as provider_id,
+            REPLACE(TRIM(regexp_replace(translate(
+                LOWER(
+                    CONCAT(
+                        CONCAT(
+                            agency_name, 
+                            CONCAT(' ', job_title)
+                        ),
+                        CONCAT(' ', published_at)
+                    )
+                 ),
+                'áàâãäåāăąèééêëēĕėęěìíîïìĩīĭḩóôõöōŏőùúûüũūŭůäàáâãåæçćĉčöòóôõøüùúûßéèêëýñîìíïş',
+                'aaaaaaaaaeeeeeeeeeeiiiiiiiihooooooouuuuuuuuaaaaaaeccccoooooouuuuseeeeyniiiis'
+            ), '[^a-z0-9\-]+', ' ')),' ', '-') as remote_id_on_provider,
+            null as remote_url,
+            city as location,
+            null as currency_code,
+            REPLACE(TRIM(regexp_replace(translate(
+                LOWER(agency_name),
+                'áàâãäåāăąèééêëēĕėęěìíîïìĩīĭḩóôõöōŏőùúûüũūŭůäàáâãåæçćĉčöòóôõøüùúûßéèêëýñîìíïş',
+                'aaaaaaaaaeeeeeeeeeeiiiiiiiihooooooouuuuuuuuaaaaaaeccccoooooouuuuseeeeyniiiis'
+            ), '[^a-z0-9\-]+', ' ')),' ', '-') as company_id,
+            agency_name as company_name,
+            job_title as title,
+            job_description as description,
+            null as tags,
+            null as salary,
+            null as salary_max,
+            null as salary_frequency,
+            0 as has_relocation_package,
+            TO_TIMESTAMP(expires_at, 'YYYY-MM-DD') as expires_at,
+            TO_TIMESTAMP(published_at, 'YYYY-MM-DD') as published_at
+        FROM
+            staging_jobtechdev_jobs
+        WHERE remote_id_on_provider NOT IN (SELECT j.remote_id_on_provider FROM job_vacancies j WHERE j.provider_id = 'jobtechdevse');
     """)
