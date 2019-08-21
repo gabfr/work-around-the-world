@@ -45,7 +45,7 @@ class SqlQueries:
         DROP TABLE IF EXISTS staging_dice_com_jobs;
         CREATE TABLE staging_dice_com_jobs (
             country_code VARCHAR(500),
-            date_added VARCHAR(200) SORTKEY,
+            date_added DATE SORTKEY,
             job_board VARCHAR(500),
             job_description VARCHAR(65535),
             job_title VARCHAR(500),
@@ -57,4 +57,18 @@ class SqlQueries:
             salary VARCHAR(100),
             sector VARCHAR(5000)
         ) DISTSTYLE EVEN;
+    """)
+
+    select_companies_from_dice_jobs_staging_table = ("""
+        select distinct  
+            REPLACE(TRIM(regexp_replace(translate(
+                LOWER(organization),
+                'áàâãäåāăąèééêëēĕėęěìíîïìĩīĭḩóôõöōŏőùúûüũūŭůäàáâãåæçćĉčöòóôõøüùúûßéèêëýñîìíïş',
+                'aaaaaaaaaeeeeeeeeeeiiiiiiiihooooooouuuuuuuuaaaaaaeccccoooooouuuuseeeeyniiiis'
+            ), '[^a-z0-9\-]+', ' ')),' ', '-') as id,
+            organization as name,
+            NULL as remote_url
+        from 
+            staging_dice_com_jobs
+        where 1 not in (select id from companies);
     """)
