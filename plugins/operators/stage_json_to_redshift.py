@@ -44,6 +44,8 @@ class StageJsonToRedshiftOperator(BaseOperator):
         self.log.info("Clearing data from destination Redshift table")
         redshift.run("DELETE FROM {}".format(self.table))
 
+        context['ds_year'] = context['execution_date'].year
+
         self.log.info("Copying data from S3 to Redshift")
         rendered_key = self.s3_key.format(**context)
         s3_path = "s3://{}/{}".format(self.s3_bucket, rendered_key)
