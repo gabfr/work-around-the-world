@@ -121,3 +121,46 @@ class SqlQueries:
             staging_dice_com_jobs
         where page_url not in (select remote_id_on_provider from job_vacancies where provider_id = 'dice_com')
     """)
+
+    # df.withColumnRenamed('AG_NAMN', 'agency_name')
+    # .withColumnRenamed('ANTAL_AKT_PLATSER', 'number_of_acting_sites')
+    # .withColumnRenamed('ARBETSDRIFT', 'work_period')
+    # .withColumnRenamed('ARBETSTID', 'working_hours')
+    # .withColumnRenamed('BESKR_ARBETSDRIFT', 'working_hours_description')
+    # .withColumnRenamed('FORSTA_PUBLICERINGSDATUM', 'published_at')
+    # .withColumnRenamed('HEMSIDA', 'website')
+    # .withColumnRenamed('KOMMUN_KOD', 'community_code')
+    # .withColumnRenamed('ORGNR', 'company_number')
+    # .withColumnRenamed('PLATSBESKRIVNING', 'job_description')
+    # .withColumnRenamed('PLATSNUMMER', 'job_number')
+    # .withColumnRenamed('PLATSRUBRIK', 'job_title')
+    # .withColumnRenamed('POSTNR', 'zipcode')
+    # .withColumnRenamed('POSTORT', 'city')
+    # .withColumnRenamed('SISTA_ANSOK_PUBLDATUM', 'expires_at')
+    # .withColumnRenamed('TILLTRADE', 'urgency_level_description')
+    # .withColumnRenamed('VARAKTIGHET', 'duration')
+
+    recreate_staging_jobtechdev_jobs_table = ("""
+        DROP TABLE IF EXISTS staging_jobtechdev_jobs;
+        CREATE TABLE staging_jobtechdev_jobs (
+            ADRESSLAND VARCHAR(500) DEFAULT NULL,
+            AG_NAMN VARCHAR(500),
+            ANTAL_AKT_PLATSER INT4,
+            ARBETSDRIFT VARCHAR(255),
+            ARBETSTID VARCHAR(255),
+            BESKR_ARBETSDRIFT VARCHAR(500),
+            FORSTA_PUBLICERINGSDATUM DATE SORTKEY,
+            HEMSIDA VARCHAR(500),
+            KOMMUN_KOD VARCHAR(500),
+            ORGNR VARCHAR(500),
+            PLATSBESKRIVNING VARCHAR(65535),
+            PLATSNUMMER VARCHAR(50),
+            PLATSRUBRIK VARCHAR(500),
+            POSTNR VARCHAR(8),
+            POSTORT VARCHAR(255),
+            SISTA_ANSOK_PUBLDATUM DATE, 
+            TILLTRADE VARCHAR(500),
+            VARAKTIGHET VARCHAR(255),
+            YRKE_ID INT8
+        ) DISTSTYLE EVEN;
+    """)

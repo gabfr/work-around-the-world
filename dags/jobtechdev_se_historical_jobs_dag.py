@@ -2,7 +2,10 @@ from datetime import datetime, timedelta
 import os
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators import (StageCsvToRedshiftOperator, PostgresOperator)
+from airflow.operators import (
+    StageCsvToRedshiftOperator, PostgresOperator, StageJsonToRedshiftOperator,
+    LoadDimensionOperator, LoadFactOperator, DataQualityOperator
+)
 from helpers import SqlQueries
 
 default_args = {
@@ -20,22 +23,29 @@ dag = DAG('jobtechdev_se_historical_jobs_dag',
           schedule_interval='@once'
         )
 
-recreate_staging_table = PostgresOperator(
-    task_id="recreate_staging_dice_com_jobs_table",
+recreate_staging_jobtechdev_jobs_table = PostgresOperator(
+    task_id="recreate_staging_jobtechdev_jobs_table",
     dag=dag,
     postgres_conn_id="redshift",
-    sql=SqlQueries.recreate_staging_dice_com_jobs_table
+    sql=SqlQueries.recreate_staging_jobtechdev_jobs_table
 )
 
-stage_events_to_redshift = StageCsvToRedshiftOperator(
-    task_id='Stage_events',
+staging_jobtechdev_jobs = StageJsonToRedshiftOperator(
+    task_id='staging_jobtechdev_jobs',
     dag=dag,
-    table="staging_events",
+    table="staging_jobtechdev_jobs",
     redshift_conn_id="redshift",
     aws_credentials_id="aws_credentials",
-    s3_bucket="udacity-dend",
-    s3_key="log_data",
-    json_path="s3://udacity-dend/log_json_path.json"
+    s3_bucket="social-wiki-datalake",
+    s3_key="capstone/jobtechdev-historical/2006.json",
+    extra_copy_parameters="DATEFORMAT AS 'YYYY-MM-DD' MAXERROR AS 6000"
+)
+
+check_staging_jobtechdev_jobs_table = DataQualityOperator(
+    task_id='check_staging_jobtechdev_jobs_table',
+    dag=dag,
+    redshift_conn_id="redshift",
+    tables=['staging_jobtechdev_jobs']
 )
 
 # Re-Create the staging table
@@ -43,3 +53,7 @@ stage_events_to_redshift = StageCsvToRedshiftOperator(
 # Run the query to copy the data from the staging table to the fact/dimensions table
 #   | -> First the dimensions (tags and companies)
 #   | -> Then the fact (job_vacancies)
+
+recreate_staging_jobtechdev_jobs_table >> staging_jobtechdev_jobs
+
+staging_jobtechdev_jobs >> check_staging_jobtechdev_jobs_table
