@@ -7,7 +7,7 @@ import helpers
 
 # Defining the plugin class
 class WorkAroundTheWorldPlugin(AirflowPlugin):
-    name = "udacity_plugin"
+    name = "work_around_the_world_plugin"
     operators = [
         operators.StageJsonToRedshiftOperator,
         operators.StageCsvToRedshiftOperator,
