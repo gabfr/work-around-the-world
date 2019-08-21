@@ -13,6 +13,7 @@ class StageCsvToRedshiftOperator(BaseOperator):
         SECRET_ACCESS_KEY '{}'
         TRUNCATECOLUMNS
         COMPUPDATE OFF STATUPDATE OFF
+        {}
         FORMAT AS CSV
     """
 
@@ -24,6 +25,7 @@ class StageCsvToRedshiftOperator(BaseOperator):
                  table="",
                  s3_bucket="",
                  s3_key="",
+                 extra_copy_parameters="",
                  *args, **kwargs):
 
         super(StageCsvToRedshiftOperator, self).__init__(*args, **kwargs)
@@ -32,6 +34,7 @@ class StageCsvToRedshiftOperator(BaseOperator):
         self.s3_bucket = s3_bucket
         self.s3_key = s3_key
         self.aws_credentials_id = aws_credentials_id
+        self.extra_copy_parameters = extra_copy_parameters
 
     def execute(self, context):
         aws_hook = AwsHook(self.aws_credentials_id)
@@ -48,7 +51,8 @@ class StageCsvToRedshiftOperator(BaseOperator):
             self.table,
             s3_path,
             credentials.access_key,
-            credentials.secret_key
+            credentials.secret_key,
+            self.extra_copy_parameters
         )
         redshift.run(formatted_sql)
 
