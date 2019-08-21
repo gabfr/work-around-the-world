@@ -40,3 +40,21 @@ class SqlQueries:
                extract(month from start_time), extract(year from start_time), extract(dayofweek from start_time)
         FROM songplays
     """)
+
+    recreate_staging_dice_com_jobs_table = ("""
+        DROP TABLE IF EXISTS staging_dice_com_jobs;
+        CREATE TABLE staging_dice_com_jobs (
+            country_code VARCHAR(500),
+            date_added VARCHAR(200) SORTKEY,
+            job_board VARCHAR(500),
+            job_description VARCHAR(65535),
+            job_title VARCHAR(500),
+            job_type VARCHAR(200),
+            location VARCHAR(500),
+            organization VARCHAR(500),
+            page_url VARCHAR(1000),
+            phone_number VARCHAR(500),
+            salary VARCHAR(100),
+            sector VARCHAR(5000)
+        ) DISTSTYLE EVEN;
+    """)
