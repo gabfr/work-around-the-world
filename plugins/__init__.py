@@ -11,6 +11,9 @@ class WorkAroundTheWorldPlugin(AirflowPlugin):
     operators = [
         operators.StageJsonToRedshiftOperator,
         operators.StageCsvToRedshiftOperator,
+        operators.StageGithubJobsOperator,
+        operators.StageLandingJobsOperator,
+        operators.StageStackoverflowJobsOperator,
         operators.LoadFactOperator,
         operators.LoadDimensionOperator,
         operators.DataQualityOperator
