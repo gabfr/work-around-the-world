@@ -66,6 +66,11 @@ class StageLandingJobsOperator(BaseOperator):
             result['created_at'] = result['created_at'].replace('Z', '').replace('T', ' ')
             result['updated_at'] = result['updated_at'].replace('Z', '').replace('T', ' ')
             result['published_at'] = result['published_at'].replace('Z', '').replace('T', ' ')
-            redshift.run(SqlQueries.insert_into_staging_landing_jobs_table, parameters=result)
+            if 'gross_salary_low' not in result:
+                result['gross_salary_low'] = None
+            if 'gross_salary_high' not in result:
+                result['gross_salary_high'] = None
+            values = [v for v in result.values()]
+            redshift.run(SqlQueries.insert_into_staging_landing_jobs_table, parameters=values)
         self.log.info("Done!")
 
