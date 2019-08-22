@@ -60,7 +60,7 @@ class StageStackoverflowJobsOperator(BaseOperator):
                 post.author, # 'company_name':
                 post.title, # 'title':
                 post.summary, # 'description':
-                ",".join(list(map(lambda t: t.term, post.tags))), # 'tags':
+                ",".join(list(map(lambda t: t.term, post.tags))) if 'tags' in post else None, # 'tags':
                 datetime.fromtimestamp(mktime(post.published_parsed)).strftime("%Y-%m-%d %H:%M:%S") # 'published_at':
             ]
             redshift.run(SqlQueries.insert_into_staging_stackoverflow_jobs, parameters=registry)
