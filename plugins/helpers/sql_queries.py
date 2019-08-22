@@ -223,3 +223,23 @@ class SqlQueries:
         )
         VALUES %s
     """)
+
+    recreate_staging_stackoverflow_jobs_table = ("""
+        DROP TABLE IF EXISTS staging_stackoverflow_jobs;
+        CREATE TABLE staging_stackoverflow_jobs (
+            id VARCHAR(50) PRIMARY KEY,
+            remote_url VARCHAR(1000),
+            location VARCHAR(500) DISTKEY,
+            company_name VARCHAR(1000),
+            title VARCHAR(1000),
+            description VARCHAR(65535),
+            tags VARCHAR(65535),
+            published_at TIMESTAMP SORTKEY
+        );
+    """)
+
+    insert_into_staging_stackoverflow_jobs = ("""
+        INSERT INTO staging_stackoverflow_jobs (
+            id, remote_url, location, company_name, title, description, tags, published_at
+        ) VALUES %s
+    """)
