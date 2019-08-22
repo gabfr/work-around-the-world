@@ -222,7 +222,7 @@ class SqlQueries:
     """)
 
     insert_into_staging_landing_jobs_table = ("""
-        INSERT INTO staging_github_jobs (
+        INSERT INTO staging_landing_jobs (
             id, city, company_id, country_code, country_name, currency_code, expires_at, main_requirements, 
             nice_to_have, perks, referral_value, relocation_paid, role_description, title, created_at, 
             updated_at, published_at, type, remote, tags, url, gross_salary_low, gross_salary_high
