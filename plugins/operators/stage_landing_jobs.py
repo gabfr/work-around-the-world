@@ -70,7 +70,14 @@ class StageLandingJobsOperator(BaseOperator):
                 result['gross_salary_low'] = None
             if 'gross_salary_high' not in result:
                 result['gross_salary_high'] = None
-            values = [v for v in result.values()]
+
+            values = [
+                result['id'], result['city'], result['company_id'], result['country_code'], result['country_name'],
+                result['currency_code'], result['expires_at'], result['main_requirements'], result['nice_to_have'],
+                result['perks'], result['referral_value'], result['relocation_paid'], result['role_description'],
+                result['title'], result['created_at'], result['updated_at'], result['published_at'], result['type'],
+                result['remote'], result['tags'], result['url'], result['gross_salary_low'], result['gross_salary_high']
+            ]
             redshift.run(SqlQueries.insert_into_staging_landing_jobs_table, parameters=values)
         self.log.info("Done!")
 
