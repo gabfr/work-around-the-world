@@ -182,8 +182,14 @@ class SqlQueries:
     """)
 
     insert_into_staging_github_jobs_table = ("""
-        INSERT INTO staging_github_jobs (id, type, url, created_at, company, company_url, location, title, description, how_to_apply, company_logo)
-        VALUES %s
+        INSERT INTO staging_github_jobs (
+            id, type, url, created_at, company, company_url, 
+            location, title, description, how_to_apply, company_logo
+        )
+        VALUES (
+            %s, %s, %s, %s, %s, %s, 
+            %s, %s, %s, %s, %s
+        )
     """)
 
     recreate_staging_landing_jobs_table = ("""
@@ -221,7 +227,11 @@ class SqlQueries:
             nice_to_have, perks, referral_value, relocation_paid, role_description, title, created_at, 
             updated_at, published_at, type, remote, tags, url, gross_salary_low, gross_salary_high
         )
-        VALUES %s
+        VALUES (
+            %s, %s, %s, %s, %s, %s, %s, %s, 
+            %s, %s, %s, %s, %s, %s, %s, 
+            %s, %s, %s, %s, %s, %s, %s, %s
+        )
     """)
 
     recreate_staging_stackoverflow_jobs_table = ("""
@@ -241,5 +251,7 @@ class SqlQueries:
     insert_into_staging_stackoverflow_jobs = ("""
         INSERT INTO staging_stackoverflow_jobs (
             id, remote_url, location, company_name, title, description, tags, published_at
-        ) VALUES %s
+        ) VALUES (
+            %s, %s, %s, %s, %s, %s, %s, %s
+        )
     """)

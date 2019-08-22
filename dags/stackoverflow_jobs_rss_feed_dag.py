@@ -8,7 +8,7 @@ from helpers import SqlQueries
 
 default_args = {
     'owner': 'gabriel',
-    'start_date': datetime(2019, 1, 12),
+    'start_date': datetime(2019, 8, 22),
     'depends_on_past': False,
     'retries': 1,
     'retry_delay': timedelta(seconds=300),
@@ -18,7 +18,7 @@ default_args = {
 dag = DAG('stackoverflow_jobs_rss_feed_dag',
           default_args=default_args,
           description='Load the jobs dataset and insert into Redshift',
-          schedule_interval='0 * * * *'
+          schedule_interval='@daily'
         )
 
 stage_stackoverflow_jobs = StageStackoverflowJobsOperator(
