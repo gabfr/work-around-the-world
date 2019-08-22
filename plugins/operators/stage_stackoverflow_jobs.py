@@ -6,6 +6,8 @@ from airflow.utils.decorators import apply_defaults
 from helpers import SqlQueries
 
 import feedparser
+from datetime import datetime
+from time import mktime
 
 
 class StageStackoverflowJobsOperator(BaseOperator):
@@ -34,7 +36,7 @@ class StageStackoverflowJobsOperator(BaseOperator):
         endpoint = '/jobs/feed'
         self.log.info(f"Will request Stackoverflow RSS Feed...")
         response = http.run(endpoint)
-        feed = feedparser.parse(response.text())
+        feed = feedparser.parse(response.text)
         results = feed.entries
         results_len = len(results)
         inserted_results = self.insert_results_on_staging(redshift, results)
@@ -51,16 +53,16 @@ class StageStackoverflowJobsOperator(BaseOperator):
             return 0
 
         for post in results:
-            registry = {
-                'id': post.id,
-                'remote_url': post.link,
-                'location': post.location,
-                'company_name': post.author,
-                'title': post.title,
-                'description': post.summary,
-                'tags': ",".join(list(map(lambda t: t.term, post.tags))),
-                'published_at': post.published_parsed.strftime("%Y-%m-%d %H:%M:%S")
-            }
+            registry = [
+                post.id, # 'id':
+                post.link, # 'remote_url':
+                post.location, # 'location':
+                post.author, # 'company_name':
+                post.title, # 'title':
+                post.summary, # 'description':
+                ",".join(list(map(lambda t: t.term, post.tags))), # 'tags':
+                datetime.fromtimestamp(mktime(post.published_parsed)).strftime("%Y-%m-%d %H:%M:%S") # 'published_at':
+            ]
             redshift.run(SqlQueries.insert_into_staging_stackoverflow_jobs, parameters=registry)
         self.log.info("Done!")
 
