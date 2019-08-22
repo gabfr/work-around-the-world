@@ -64,5 +64,6 @@ class StageGithubJobsOperator(BaseOperator):
                 dt.datetime.strptime(result['created_at'], "%a %b %d %H:%M:%S %Z %Y")
                            .strftime("%Y-%m-%d %H:%M:%S")
             )
-            redshift.run(SqlQueries.insert_into_staging_github_jobs_table, parameters=result)
+            values = [v for v in result.values()]
+            redshift.run(SqlQueries.insert_into_staging_github_jobs_table, parameters=values)
         self.log.info("Done!")
