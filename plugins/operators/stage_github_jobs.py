@@ -5,6 +5,8 @@ from airflow.utils.decorators import apply_defaults
 
 from plugins.helpers.sql_queries import SqlQueries
 
+import datetime as dt
+
 class StageGithubJobsOperator(BaseOperator):
 
     @apply_defaults
@@ -58,5 +60,9 @@ class StageGithubJobsOperator(BaseOperator):
             return
 
         for result in results:
+            result['created_at'] = (
+                dt.datetime.strptime(result['created_at'], "%a %b %d %H:%M:%S %Z %Y")
+                           .strftime("%Y-%m-%d %H:%M:%S")
+            )
             redshift.run(SqlQueries.insert_into_staging_github_jobs_table, parameters=result)
         self.log.info("Done!")
