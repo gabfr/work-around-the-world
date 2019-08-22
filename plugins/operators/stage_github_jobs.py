@@ -6,6 +6,7 @@ from airflow.utils.decorators import apply_defaults
 from helpers import SqlQueries
 
 import datetime as dt
+import re
 
 class StageGithubJobsOperator(BaseOperator):
 
@@ -64,6 +65,10 @@ class StageGithubJobsOperator(BaseOperator):
                 dt.datetime.strptime(result['created_at'], "%a %b %d %H:%M:%S %Z %Y")
                            .strftime("%Y-%m-%d %H:%M:%S")
             )
+            # clean utf8 with more than 4 bytes
+            re_pattern = re.compile(u'[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
+            result['title'] = re_pattern.sub(u'\uFFFD', result['title'])
+            result['description'] = re_pattern.sub(u'\uFFFD', result['description'])
             values = [v for v in result.values()]
             redshift.run(SqlQueries.insert_into_staging_github_jobs_table, parameters=values)
         self.log.info("Done!")
