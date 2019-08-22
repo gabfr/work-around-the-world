@@ -263,7 +263,7 @@ class SqlQueries:
         );
     """)
 
-    select_tags_from_github_jobs = ("""
+    select_tags_from_landing_jobs = ("""
         with NS AS (
           SELECT 1 as n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL 
           SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL 
