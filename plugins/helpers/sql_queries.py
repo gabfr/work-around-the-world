@@ -163,3 +163,63 @@ class SqlQueries:
             staging_jobtechdev_jobs
         WHERE id NOT IN (SELECT j.id FROM job_vacancies j);
     """)
+
+    recreate_staging_github_jobs_table = ("""
+        DROP TABLE IF EXISTS staging_github_jobs;
+        CREATE TABLE staging_github_jobs (
+            id VARCHAR(38) PRIMARY KEY,
+            type VARCHAR(100),
+            url VARCHAR(1000),
+            created_at TIMESTAMP SORTKEY,
+            company VARCHAR(500),
+            company_url VARCHAR(1000),
+            location VARCHAR(500),
+            title VARCHAR(500),
+            description VARCHAR(65535),
+            how_to_apply VARCHAR(1000),
+            company_logo VARCHAR(1000)
+        );
+    """)
+
+    insert_into_staging_github_jobs_table = ("""
+        INSERT INTO staging_github_jobs (id, type, url, created_at, company, company_url, location, title, description, how_to_apply, company_logo)
+        VALUES %s
+    """)
+
+    recreate_staging_landing_jobs_table = ("""
+        DROP TABLE IF EXISTS staging_landing_jobs;
+        CREATE TABLE staging_landing_jobs (
+            id INT8 PRIMARY KEY,
+            city VARCHAR(255) DISTKEY,
+            company_id INT8,
+            country_code VARCHAR(5),
+            country_name VARCHAR(255),
+            currency_code VARCHAR(5),
+            expires_at DATE,
+            main_requirements VARCHAR(65535),
+            nice_to_have VARCHAR(65535),
+            perks VARCHAR(65535),
+            referral_value VARCHAR(20),
+            relocation_paid INT4,
+            role_description VARCHAR(65535),
+            title VARCHAR(500),
+            created_at TIMESTAMP,
+            updated_at TIMESTAMP,
+            published_at TIMESTAMP,
+            type VARCHAR(255),
+            remote INT4,
+            tags VARCHAR(65535),
+            url VARCHAR(1000),
+            gross_salary_low NUMERIC(18,2),
+            gross_salary_high NUMERIC(18,2)
+        );
+    """)
+
+    insert_into_staging_landing_jobs_table = ("""
+        INSERT INTO staging_github_jobs (
+            id, city, company_id, country_code, country_name, currency_code, expires_at, main_requirements, 
+            nice_to_have, perks, referral_value, relocation_paid, role_description, title, created_at, 
+            updated_at, published_at, type, remote, tags, url, gross_salary_low, gross_salary_high
+        )
+        VALUES %s
+    """)
