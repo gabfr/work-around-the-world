@@ -66,7 +66,7 @@ class StageGithubJobsOperator(BaseOperator):
                            .strftime("%Y-%m-%d %H:%M:%S")
             )
             # clean utf8 with more than 4 bytes
-            re_pattern = re.compile(u'[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
+            re_pattern = re.compile(u'[^\u0000-\u07FF\uE000-\uFFFF]', re.UNICODE)
             result['title'] = re_pattern.sub(u'\uFFFD', result['title'])
             result['description'] = re_pattern.sub(u'\uFFFD', result['description'])
             values = [v for v in result.values()]
