@@ -110,6 +110,10 @@ So I configured to run this DAG daily too.
 
 ## Data Schema
 
+The purpose of this project is to assemble a dataset to ease query for jobs of a determined set of skills or company.
+For that we don't need normalized informations. Instead we adopted a star schema because of it's scalability in terms of
+reading and querying. 
+
 To simplify our job listing we'll have only a single fact table with the job vacancies and two other tables to aggregate
 data on companies and tags:
 
@@ -162,3 +166,16 @@ data on companies and tags:
 | `expires_at` | `TIMESTAMP DEFAULT NULL` | When this job vacancy post will expire? |
 | `published_at` | `TIMESTAMP SORTKEY` | The date this job was posted. |
 
+## Future scenarios
+
+The developed ETL processes here consider the size of the datasets as it is. 
+Altought if the data increased 100x the APIs sources won't be affected because they
+have fetching limitations and run daily (so we incrementally follow the data inrease).
+
+For our file datasets, the Dice.com should be divided to run yearly if it was updated as it
+is for the JSON Jobtechdev.se dataset.
+
+And at last, but not least, the choosen database (Redshift) can handle large amounts of 
+read queries because it distributed our data and copies it across all nodes of the cluster
+to make it highly available. Maybe we will need to just increase the number of nodes, but 
+this is done with a few clicks on the AWS dashboard.
