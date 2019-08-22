@@ -3,7 +3,7 @@ from airflow.hooks.http_hook import HttpHook
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
-from plugins.helpers.sql_queries import SqlQueries
+from helpers import SqlQueries
 
 import feedparser
 
