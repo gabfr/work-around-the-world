@@ -35,10 +35,41 @@ check_staging_github_jobs_table = DataQualityOperator(
     tables=['staging_github_jobs']
 )
 
-# Re-Create the staging table
-# Query the API to fetch the job vacancies and insert into the staging table
-# Run the query to copy the data from the staging table to the fact/dimensions table
-#   | -> First the dimensions (tags and companies)
-#   | -> Then the fact (job_vacancies) - only newer registries
+upsert_companies_dimension_table = LoadDimensionOperator(
+    task_id='upsert_companies_dimension_table',
+    dag=dag,
+    table='companies',
+    redshift_conn_id="redshift",
+    select_query=SqlQueries.select_companies_from_github_jobs
+)
+
+upsert_job_vacancies_fact_table = LoadFactOperator(
+    task_id='upsert_job_vacancies_fact_table',
+    dag=dag,
+    table='job_vacancies',
+    redshift_conn_id="redshift",
+    select_query=SqlQueries.select_job_vacancies_from_github_jobs
+)
+
+check_dimensions_tables = DataQualityOperator(
+    task_id='check_dimensions_tables',
+    dag=dag,
+    redshift_conn_id="redshift",
+    tables=['companies', 'tags']
+)
+
+check_fact_table = DataQualityOperator(
+    task_id='check_fact_table',
+    dag=dag,
+    redshift_conn_id="redshift",
+    tables=['job_vacancies'],
+    where_parameters="provider_id = 'github_jobs'"
+)
 
 stage_github_jobs >> check_staging_github_jobs_table
+
+check_staging_github_jobs_table >> upsert_companies_dimension_table
+check_staging_github_jobs_table >> upsert_job_vacancies_fact_table
+
+upsert_companies_dimension_table >> check_dimensions_tables
+upsert_job_vacancies_fact_table >> check_fact_table
