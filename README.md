@@ -25,6 +25,8 @@ as `dwh.cfg` and fill all the keys (except the `HOST` under `CLUSTER` section). 
 
  - Start the cluster provisioning by running: `python aws/create_cluster.py`
  - Wait a few minutes and check if the cluster status is available by running: `python aws/check_cluster_available.py`
+     - You should run this script until the cluster is available. Because this script is responsible of updating our 
+     `dwh.cfg` with the `HOST` address
  - When the cluster is already available, your dwh.cfg would be rewrited with its `HOST` address. Then you just need to
  copy that configuration over to the Airflow Connections
  - And for the sake of our AWS bills (keep'em low), there´s also a script to destroy the cluster: 
