@@ -19,6 +19,17 @@ Airflow to orchestrate all ETL processes and maintain their correct frequency al
 So, the first thing you need to do is to configure your airflow home to this project. Don't forget to leverage the
 plugins configuration too. Otherwise the operators I created will not be found by Airflow.
 
+Then, create (if not already created) your Redshift cluster. I provided a few scripts to help spining up a Redshift
+cluster using the AWS API, directly from the command line. Before diving into them, make a copy of the `dwh.cfg.example`
+as `dwh.cfg` and fill all the keys (except the `HOST` under `CLUSTER` section). Then you just need to:
+
+ - Start the cluster provisioning by running: `python aws/create_cluster.py`
+ - Wait a few minutes and check if the cluster status is available by running: `python aws/check_cluster_available.py`
+ - When the cluster is already available, your dwh.cfg would be rewrited with its `HOST` address. Then you just need to
+ copy that configuration over to the Airflow Connections
+ - And for the sake of our AWS bills (keep'em low), there´s also a script to destroy the cluster: 
+ `python aws/destroy_cluster.py` (**but this one is for later**)
+
 After doing that, before activating the DAGs you have to configure the following Airflow connections:
 
 ### Airflow Connections
