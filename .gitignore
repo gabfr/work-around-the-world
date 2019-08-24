@@ -7,6 +7,7 @@ __pycache__/
 datasets/*
 datasets_alternatives
 dc.cfg
+dwh.cfg
 
 # C extensions
 *.so
