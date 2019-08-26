@@ -1,8 +1,6 @@
 import configparser
-import pandas as pd
 import boto3
 import json
-import time
 
 KEY                    = None
 SECRET                 = None
@@ -12,6 +10,7 @@ DWH_NUM_NODES          = None
 DWH_NODE_TYPE          = None
 
 DWH_CLUSTER_IDENTIFIER = None
+DWH_HOST               = None
 DWH_DB                 = None
 DWH_DB_USER            = None
 DWH_DB_PASSWORD        = None
@@ -27,7 +26,8 @@ def config_parse_file():
     """
     global KEY, SECRET, DWH_CLUSTER_TYPE, DWH_NUM_NODES, \
         DWH_NODE_TYPE, DWH_CLUSTER_IDENTIFIER, DWH_DB, \
-        DWH_DB_USER, DWH_DB_PASSWORD, DWH_PORT, DWH_IAM_ROLE_NAME
+        DWH_DB_USER, DWH_DB_PASSWORD, DWH_PORT, DWH_IAM_ROLE_NAME, \
+        DWH_HOST
 
     print("Parsing the config file...")
     config = configparser.ConfigParser()
@@ -44,6 +44,7 @@ def config_parse_file():
         DWH_IAM_ROLE_NAME = config.get("DWH", "DWH_IAM_ROLE_NAME")
         DWH_CLUSTER_IDENTIFIER = config.get("DWH", "DWH_CLUSTER_IDENTIFIER")
 
+        DWH_HOST = config.get("CLUSTER", "HOST")
         DWH_DB = config.get("CLUSTER", "DB_NAME")
         DWH_DB_USER = config.get("CLUSTER", "DB_USER")
         DWH_DB_PASSWORD = config.get("CLUSTER", "DB_PASSWORD")
