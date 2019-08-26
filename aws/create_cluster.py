@@ -51,6 +51,35 @@ def config_parse_file():
         DWH_PORT = config.get("CLUSTER", "DB_PORT")
 
 
+def config_get_dict():
+    """
+    Get the values of the parsed dwh.cfg file
+    :return:
+    """
+    global KEY, SECRET, DWH_CLUSTER_TYPE, DWH_NUM_NODES, \
+        DWH_NODE_TYPE, DWH_CLUSTER_IDENTIFIER, DWH_DB, \
+        DWH_DB_USER, DWH_DB_PASSWORD, DWH_PORT, DWH_IAM_ROLE_NAME, \
+        DWH_HOST
+
+    return {
+        'KEY': KEY,
+        'SECRET': SECRET,
+
+        'DWH_CLUSTER_TYPE': DWH_CLUSTER_TYPE,
+        'DWH_NUM_NODES': DWH_NUM_NODES,
+        'DWH_NODE_TYPE': DWH_NODE_TYPE,
+
+        'DWH_IAM_ROLE_NAME': DWH_IAM_ROLE_NAME,
+        'DWH_CLUSTER_IDENTIFIER': DWH_CLUSTER_IDENTIFIER,
+
+        'DWH_HOST': DWH_HOST,
+        'DWH_DB': DWH_DB,
+        'DWH_DB_USER': DWH_DB_USER,
+        'DWH_DB_PASSWORD': DWH_DB_PASSWORD,
+        'DWH_PORT': DWH_PORT
+    }
+
+
 def create_iam_role(iam):
     """
     Create the AWS IAM role

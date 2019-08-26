@@ -23,13 +23,16 @@ Then, create (if not already created) your Redshift cluster. I provided a few sc
 cluster using the AWS API, directly from the command line. Before diving into them, make a copy of the `dwh.cfg.example`
 as `dwh.cfg` and fill all the keys (except the `HOST` under `CLUSTER` section). Then you just need to:
 
- - Start the cluster provisioning by running: `python aws/create_cluster.py`
- - Wait a few minutes and check if the cluster status is available by running: `python aws/check_cluster_available.py`
+ 1. Start the cluster provisioning by running: 
+     - `python aws/create_cluster.py`
+ 2. Wait a few minutes and check if the cluster status is available by running: 
+     - `python aws/check_cluster_available.py`
      - You should run this script until the cluster is available. Because this script is responsible of updating our 
      `dwh.cfg` with the `HOST` address
- - When the cluster is already available, your dwh.cfg would be rewrited with its `HOST` address. Then you just need to
- copy that configuration over to the Airflow Connections
- - And for the sake of our AWS bills (keep'em low), there´s also a script to destroy the cluster: 
+ 3. When the cluster is already available, your dwh.cfg would be rewrited with its `HOST` address. Then you just need to
+ copy that configuration over to the Airflow Connections. There's a script to do that:
+      - `python aws/register_airflow_connections.py`
+ 4. (_optional, after work_) And for the sake of our AWS bills (keep'em low), there´s also a script to destroy the cluster: 
  `python aws/destroy_cluster.py` (**but this one is for later**)
 
 After doing that, before activating the DAGs you have to configure the following Airflow connections:
