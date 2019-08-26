@@ -39,8 +39,9 @@ After doing that, before activating the DAGs you have to configure the following
 
 ### Airflow Connections
 
-Excluding the Redshift and the Amazon Web Services Credentials, the other configurations should be done as the other 
-fields column states:
+If you hit on the wall with the `python aws/register_airflow_connections.py` below we have a table with a dictionary
+of connections used by this ETL system. Excluding the Redshift and the Amazon Web Services Credentials, 
+the other configurations should be done as the other fields column states:
 
 | Service | Conn ID | Conn Type | Other fields |
 | ------- | ------- | --------- | ------------------ |
