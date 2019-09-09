@@ -196,3 +196,10 @@ And at last, but not least, the choosen database (Redshift) can handle large amo
 read queries because it distributed our data and copies it across all nodes of the cluster
 to make it highly available. Maybe we will need to just increase the number of nodes, but 
 this is done with a few clicks on the AWS dashboard.
+
+## Roadmap
+
+ - [ ] Unload the crawled jobs to write the jobs/tags/companies table back to AWS S3
+ - [ ] Create a DAG to crawl the Angel.co
+ - [ ] Load the crawled jobs/tags/companies to a relational database with low-cost to host (self hosted MySQL maybe?)
+ - [ ] Create a simple web application to navigate/search in the data of these crawled jobs
