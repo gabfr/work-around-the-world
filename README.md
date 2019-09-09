@@ -200,7 +200,8 @@ this is done with a few clicks on the AWS dashboard.
 ## Roadmap
 
  - [ ] Unload the crawled jobs to write the jobs/tags/companies table back to AWS S3
- - [ ] Create a DAG to crawl the Angel.co
+ - [ ] Create a DAG to crawl the Angel.co - probably needs to use selenium (can use as inspiration/benchmark: 
+ https://github.com/muladzevitali/AngelList)
  - [ ] Load the crawled jobs/tags/companies to a relational database with low-cost to host (self hosted Postgres maybe?
  it's just a matter of configuring the self-hosted database :)
  - [ ] Create a simple web application to navigate/search in the data of these crawled jobs
