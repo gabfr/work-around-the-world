@@ -20,4 +20,6 @@ DWH_NODE_TYPE=dc2.large
 DWH_IAM_ROLE_NAME=dwhRole
 DWH_CLUSTER_IDENTIFIER=dwhCluster
 
-
+[ANGELCO]
+email=your@email.com
+password=yourPassw0rd_!
