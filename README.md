@@ -37,6 +37,21 @@ as `dwh.cfg` and fill all the keys (except the `HOST` under `CLUSTER` section). 
 
 After doing that, before activating the DAGs you have to configure the following Airflow connections:
 
+### Running Airflow locally
+
+We will use Docker to provision our local environment and to ease the production deployment process too (if required). 
+The Docker image we will use is the puckel/docker-airflow (`docker pull puckel/docker-airflow`)
+
+**Inside the root folder of this project run the following command:**
+
+```
+docker run -d -p 8080:8080  \
+    -v $(pwd)/dags:/usr/local/airflow/dags \
+    -v $(pwd)/plugins:/usr/local/airflow/plugins \
+    -v $(pwd)/requirements.txt:/requirements.txt \
+    puckel/docker-airflow webserver
+```
+
 ### Airflow Connections
 
 If you hit on the wall with the `python aws/register_airflow_connections.py` below we have a table with a dictionary
@@ -202,6 +217,9 @@ this is done with a few clicks on the AWS dashboard.
  - [ ] Unload the crawled jobs to write the jobs/tags/companies table back to AWS S3
  - [ ] Create a DAG to crawl the Angel.co - probably needs to use selenium (can use as inspiration/benchmark: 
  https://github.com/muladzevitali/AngelList)
+   - [ ] Modify the `puckel/docker-airflow` to leverage the `chromedriver` installation to work with the `selenium`
+   possibly by making a `Dockerfile`
+   - [ ] Create the `angels_co_jobs_dag` that will use selenium to crawl their site and store the jobs informations
  - [ ] Load the crawled jobs/tags/companies to a relational database with low-cost to host (self hosted Postgres maybe?
  it's just a matter of configuring the self-hosted database :)
  - [ ] Create a simple web application to navigate/search in the data of these crawled jobs
