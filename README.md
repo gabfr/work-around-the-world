@@ -220,6 +220,5 @@ this is done with a few clicks on the AWS dashboard.
    - [ ] Modify the `puckel/docker-airflow` to leverage the `chromedriver` installation to work with the `selenium`
    possibly by making a `Dockerfile`
    - [ ] Create the `angels_co_jobs_dag` that will use selenium to crawl their site and store the jobs informations
- - [ ] Load the crawled jobs/tags/companies to a relational database with low-cost to host (self hosted Postgres maybe?
- it's just a matter of configuring the self-hosted database :)
+ - [ ] Load the crawled jobs/tags/companies to the Algolia Search Provider, a free API to query those jobs
  - [ ] Create a simple web application to navigate/search in the data of these crawled jobs
