@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver import ActionChains
 from selenium.webdriver.chrome.options import Options
 import configparser
 
@@ -93,6 +94,16 @@ def clean_all_filters(driver, selector):
         clean_all_filters(driver, selector)
 
 
+def mouseover_element(driver, selector):
+    element = lazy_get_element(driver, selector)
+    if not element:
+        return False
+
+    hover_action = ActionChains(driver).move_to_element(element)
+    hover_action.perform()
+    return True
+
+
 def main():
     global ANGELCO_EMAIL, ANGELCO_PASSWORD
 
@@ -119,6 +130,19 @@ def main():
 
     clean_all_filters(driver, '.remove-filter.delete')
 
+    driver.implicitly_wait(20)
+
+    mouseover_element(driver, '.dropdown-filter[data-menu="compensation"]')
+
+    driver.implicitly_wait(1)
+
+    dropdown_menu_option = lazy_get_element(driver, '.filter-row[data-key="visa"]')
+    dropdown_menu_option.click()
+
+    print('Waiting for visa sponsor jobs')
+    driver.implicitly_wait(30)
+    print('waiting done. there are only visa sponsor jobs?')
+
     # after cleaning all filter's
 
     # Waiting for the startup div that holds the jobs listing
@@ -126,6 +150,29 @@ def main():
         driver,
         '#startups_content > .job_listings.browse_startups > .find.g-module.startup-container > div'
     )
+
+    print('Now we will traverse the startups_table')
+
+    # now we get the first expanded startup job listing
+
+    # #startups_content > .job_listings.browse_startups >
+    # .find.g-module.startup-container > div > .job_listings.browse_startups_table >
+    # .job_listings.browse_startups_table_row[.expanded]
+
+    # @TODO: Check below why this code isn't working
+    startups_divs = driver.find_elements_by_css_selector(
+        # '#startups_content > .job_listings.browse_startups > ' +
+        '.find.g-module.startup-container > div > .job_listings.browse_startups_table' +
+        '.job_listings.browse_startups_table_row'
+    )
+
+    for startup_div in startups_divs:
+        if 'expanded' not in startup_div.get_attribute('class').split():
+            startup_div.click()
+            driver.implicitly_wait(2)
+
+        print(startup_div.get_attribute('outerHTML'))
+        print("\n\n")
 
 
     input('prompt')
