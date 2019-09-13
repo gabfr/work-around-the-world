@@ -1,3 +1,5 @@
+import math
+
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import ActionChains
@@ -7,6 +9,7 @@ import configparser
 import selenium.webdriver.support.expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
+import time
 
 ANGELCO_EMAIL = None
 ANGELCO_PASSWORD = None
@@ -148,7 +151,8 @@ def main():
     # Waiting for the startup div that holds the jobs listing
     lazy_get_element(
         driver,
-        '#startups_content > .job_listings.browse_startups > .find.g-module.startup-container > div'
+        '#startups_content > .job_listings.browse_startups > .find.g-module.startup-container > div > '+
+        '.job_listings.browse_startups_table[data-job-filter=\'{"visa":"true"}\']'
     )
 
     print('Now we will traverse the startups_table')
@@ -159,23 +163,56 @@ def main():
     # .find.g-module.startup-container > div > .job_listings.browse_startups_table >
     # .job_listings.browse_startups_table_row[.expanded]
 
-    # @TODO: Check below why this code isn't working
+    results_count = driver.find_element_by_css_selector('.job_listings.browse_filters .count-box .label-container')
+    results_count_txt = results_count.get_attribute('innerText')
+    total_results = int(
+        results_count_txt.replace('startups', '')
+            .replace(',', '')
+            .replace('.', '')
+            .strip()
+    )
+    results_per_page = 10
+    pages = math.floor(total_results / results_per_page)
+
+    startup_container = driver.find_element_by_css_selector('.find.g-module.startup-container')
+    current_checksum = startup_container.get_attribute('data-checksum')
+    last_pages_count = len(driver.find_elements_by_css_selector('.find.g-module.startup-container > div'))
+
+    print('The current checksum is: ' + current_checksum)
+    for i in range(1, pages):
+        print('page: {}/{}'.format(i, pages))
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+        should_outer_break = True
+        for i in range(1,60):
+            time.sleep(1)
+            new_pages_count = len(driver.find_elements_by_css_selector('.find.g-module.startup-container > div'))
+            if new_pages_count > last_pages_count:
+                should_outer_break = False
+                break
+
+        if should_outer_break:
+            break
+
     startups_divs = driver.find_elements_by_css_selector(
         # '#startups_content > .job_listings.browse_startups > ' +
-        '.find.g-module.startup-container > div > .job_listings.browse_startups_table' +
+        '.find.g-module.startup-container > div > .job_listings.browse_startups_table > ' +
         '.job_listings.browse_startups_table_row'
     )
-
+    total_startups_divs = len(startups_divs)
+    print('Total startups divs: {}'.format(total_startups_divs))
+    startups_divs_it = 0
     for startup_div in startups_divs:
-        if 'expanded' not in startup_div.get_attribute('class').split():
-            startup_div.click()
-            driver.implicitly_wait(2)
-
-        print(startup_div.get_attribute('outerHTML'))
-        print("\n\n")
-
-
-    input('prompt')
+        startups_divs_it = startups_divs_it + 1
+        # if 'expanded' not in startup_div.get_attribute('class').split():
+        #     startup_div.click()
+        #     driver.implicitly_wait(2)
+        startupDivId = startup_div.get_attribute('data-id')
+        htmlContent = startup_div.get_attribute('outerHTML')
+        f = open('crawlers/output/{}.html'.format(startupDivId), 'w')
+        f.write(htmlContent)
+        f.close()
+        print('Saving startup div {}/{}'.format(startups_divs_it,total_startups_divs))
 
 
 if __name__ == '__main__':
