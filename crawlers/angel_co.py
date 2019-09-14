@@ -2,7 +2,7 @@ import math
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver import ActionChains
+from selenium.webdriver import ActionChains, DesiredCapabilities
 from selenium.webdriver.chrome.options import Options
 import configparser
 
@@ -31,11 +31,11 @@ def config_parse_file():
         ANGELCO_PASSWORD = config.get('ANGELCO', 'PASSWORD')
 
 
-def selenium_create_driver(executable_path=r'/usr/local/bin/chromedriver', options=None):
+def selenium_create_driver(executable_path=r'/usr/local/bin/chromedriver', options=None, capabilities=None):
     if options is None:
         options = Options()
 
-    return webdriver.Chrome(options=options, executable_path=executable_path)
+    return webdriver.Chrome(options=options, executable_path=executable_path, desired_capabilities=capabilities)
 
 
 def lazy_get_element(driver, css_selector, timeout=30):
@@ -107,6 +107,61 @@ def mouseover_element(driver, selector):
     return True
 
 
+def result_pages_count(driver):
+    results_count = driver.find_element_by_css_selector('.job_listings.browse_filters .count-box .label-container')
+    results_count_txt = results_count.get_attribute('innerText')
+    total_results = int(
+        results_count_txt.replace('startups', '')
+            .replace(',', '')
+            .replace('.', '')
+            .strip()
+    )
+    results_per_page = 10
+    return math.floor(total_results / results_per_page)
+
+
+def scroll_down_all_pages(driver):
+    startup_container = driver.find_element_by_css_selector('.find.g-module.startup-container')
+    current_checksum = startup_container.get_attribute('data-checksum')
+    last_pages_count = len(driver.find_elements_by_css_selector('.find.g-module.startup-container > div'))
+
+    print('The current checksum is: ' + current_checksum)
+    pages = result_pages_count(driver)
+    for i in range(1, pages):
+        print('page: {}/{}'.format(i, pages))
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+        should_outer_break = True
+        for i in range(1, 60):
+            time.sleep(1)
+            new_pages_count = len(driver.find_elements_by_css_selector('.find.g-module.startup-container > div'))
+            if new_pages_count > last_pages_count:
+                should_outer_break = False
+                break
+
+        if should_outer_break:
+            break
+
+
+def save_all_startup_jobs(driver, output_directory):
+    startups_divs = driver.find_elements_by_css_selector(
+        # '#startups_content > .job_listings.browse_startups > ' +
+        '.find.g-module.startup-container > div > .job_listings.browse_startups_table > ' +
+        '.job_listings.browse_startups_table_row'
+    )
+    total_startups_divs = len(startups_divs)
+    print('Total startups divs: {}'.format(total_startups_divs))
+    startups_divs_it = 0
+    for startup_div in startups_divs:
+        startups_divs_it = startups_divs_it + 1
+        startup_div_id = startup_div.get_attribute('data-id')
+        html_content = startup_div.get_attribute('outerHTML')
+        f = open('{}/{}.html'.format(output_directory, startup_div_id), 'w')
+        f.write(html_content)
+        f.close()
+        print('Saving startup div {}/{}'.format(startups_divs_it, total_startups_divs))
+
+
 def main():
     global ANGELCO_EMAIL, ANGELCO_PASSWORD
 
@@ -116,9 +171,20 @@ def main():
     print("Password: " + ANGELCO_PASSWORD)
 
     incognito_mode = Options()
-    incognito_mode.add_argument('--incognito')
+    # incognito_mode.headless = True
+    incognito_mode.add_argument("--headless")
+    incognito_mode.add_argument('--disable-gpu')
+    incognito_mode.add_argument('--no-sandbox')
+    capabilities = DesiredCapabilities.CHROME.copy()
+    capabilities['acceptSslCerts'] = True
+    capabilities['acceptInsecureCerts'] = True
+    # incognito_mode.add_argument('--start-maximized')
+    # incognito_mode.add_argument('--proxy-bypass-list=*')
+    # incognito_mode.add_argument("--proxy-server='direct://'")
+    # incognito_mode.add_argument('--incognito')
+    # incognito_mode.add_argument('--headless')
 
-    driver = selenium_create_driver(options=incognito_mode)
+    driver = selenium_create_driver(options=incognito_mode, capabilities=capabilities)
 
     driver.get('https://angel.co')
 
@@ -127,6 +193,10 @@ def main():
     accept_cookies(driver)
 
     do_login(driver)
+    
+    driver.implicitly_wait(15)
+    
+    driver.get('https://angel.co/jobs')
 
     lazy_get_element(driver, '.remove-filter.delete')  # wait until the remove filter buttons appear
     # then, find all remove filter buttons
@@ -155,64 +225,9 @@ def main():
         '.job_listings.browse_startups_table[data-job-filter=\'{"visa":"true"}\']'
     )
 
-    print('Now we will traverse the startups_table')
+    scroll_down_all_pages(driver)
 
-    # now we get the first expanded startup job listing
-
-    # #startups_content > .job_listings.browse_startups >
-    # .find.g-module.startup-container > div > .job_listings.browse_startups_table >
-    # .job_listings.browse_startups_table_row[.expanded]
-
-    results_count = driver.find_element_by_css_selector('.job_listings.browse_filters .count-box .label-container')
-    results_count_txt = results_count.get_attribute('innerText')
-    total_results = int(
-        results_count_txt.replace('startups', '')
-            .replace(',', '')
-            .replace('.', '')
-            .strip()
-    )
-    results_per_page = 10
-    pages = math.floor(total_results / results_per_page)
-
-    startup_container = driver.find_element_by_css_selector('.find.g-module.startup-container')
-    current_checksum = startup_container.get_attribute('data-checksum')
-    last_pages_count = len(driver.find_elements_by_css_selector('.find.g-module.startup-container > div'))
-
-    print('The current checksum is: ' + current_checksum)
-    for i in range(1, pages):
-        print('page: {}/{}'.format(i, pages))
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-        should_outer_break = True
-        for i in range(1,60):
-            time.sleep(1)
-            new_pages_count = len(driver.find_elements_by_css_selector('.find.g-module.startup-container > div'))
-            if new_pages_count > last_pages_count:
-                should_outer_break = False
-                break
-
-        if should_outer_break:
-            break
-
-    startups_divs = driver.find_elements_by_css_selector(
-        # '#startups_content > .job_listings.browse_startups > ' +
-        '.find.g-module.startup-container > div > .job_listings.browse_startups_table > ' +
-        '.job_listings.browse_startups_table_row'
-    )
-    total_startups_divs = len(startups_divs)
-    print('Total startups divs: {}'.format(total_startups_divs))
-    startups_divs_it = 0
-    for startup_div in startups_divs:
-        startups_divs_it = startups_divs_it + 1
-        # if 'expanded' not in startup_div.get_attribute('class').split():
-        #     startup_div.click()
-        #     driver.implicitly_wait(2)
-        startupDivId = startup_div.get_attribute('data-id')
-        htmlContent = startup_div.get_attribute('outerHTML')
-        f = open('crawlers/output/{}.html'.format(startupDivId), 'w')
-        f.write(htmlContent)
-        f.close()
-        print('Saving startup div {}/{}'.format(startups_divs_it,total_startups_divs))
+    save_all_startup_jobs(driver, 'crawlers/output')
 
 
 if __name__ == '__main__':
