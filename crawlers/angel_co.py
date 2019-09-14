@@ -170,21 +170,10 @@ def main():
     print("Email: " + ANGELCO_EMAIL)
     print("Password: " + ANGELCO_PASSWORD)
 
-    incognito_mode = Options()
-    # incognito_mode.headless = True
-    incognito_mode.add_argument("--headless")
-    incognito_mode.add_argument('--disable-gpu')
-    incognito_mode.add_argument('--no-sandbox')
-    capabilities = DesiredCapabilities.CHROME.copy()
-    capabilities['acceptSslCerts'] = True
-    capabilities['acceptInsecureCerts'] = True
-    # incognito_mode.add_argument('--start-maximized')
-    # incognito_mode.add_argument('--proxy-bypass-list=*')
-    # incognito_mode.add_argument("--proxy-server='direct://'")
-    # incognito_mode.add_argument('--incognito')
-    # incognito_mode.add_argument('--headless')
+    options = Options()
+    # options.headless = True
 
-    driver = selenium_create_driver(options=incognito_mode, capabilities=capabilities)
+    driver = selenium_create_driver(options=options)
 
     driver.get('https://angel.co')
 
