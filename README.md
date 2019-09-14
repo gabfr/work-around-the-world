@@ -40,16 +40,12 @@ After doing that, before activating the DAGs you have to configure the following
 ### Running Airflow locally
 
 We will use Docker to provision our local environment and to ease the production deployment process too (if required). 
-The Docker image we will use is the puckel/docker-airflow (`docker pull puckel/docker-airflow`)
+The Docker image we will use is the `puckel/docker-airflow`
 
 **Inside the root folder of this project run the following command:**
 
 ```
-docker run -d -p 8080:8080  \
-    -v $(pwd)/dags:/usr/local/airflow/dags \
-    -v $(pwd)/plugins:/usr/local/airflow/plugins \
-    -v $(pwd)/requirements.txt:/requirements.txt \
-    puckel/docker-airflow webserver
+docker-compose -f docker-compose-LocalExecutor.yml up -d
 ```
 
 ### Airflow Connections
