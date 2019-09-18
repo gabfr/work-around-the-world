@@ -171,7 +171,7 @@ def main():
     print("Password: " + ANGELCO_PASSWORD)
 
     options = Options()
-    # options.headless = True
+    options.headless = True
 
     driver = selenium_create_driver(options=options)
 
