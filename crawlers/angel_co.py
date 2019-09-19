@@ -172,8 +172,17 @@ def main():
 
     options = Options()
     options.headless = True
+    options.add_argument("window-size=1920,1080")
+    options.add_argument("disable-gpu")
+    options.add_argument("disable-extensions")
+    options.add_argument("proxy-server='direct://'")
+    options.add_argument("proxy-bypass-list=*")
+    options.add_argument("start-maximized")
+    options.add_argument("no-sandbox")
 
     driver = selenium_create_driver(options=options)
+    driver.set_window_size(1440, 900)
+    driver.maximize_window()
 
     driver.get('https://angel.co')
 
