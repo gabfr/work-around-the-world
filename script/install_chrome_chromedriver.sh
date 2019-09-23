@@ -19,8 +19,12 @@ rm /usr/local/bin/chromedriver
 rm /usr/local/bin/selenium-server-standalone.jar
 
 # Install dependencies.
+# deal with slim variants not having man page directories (which causes "update-alternatives" to fail)
+if [ ! -d /usr/share/man/man1 ]; then \
+    mkdir -p /usr/share/man/man1; \
+fi;
 apt-get update
-apt-get install -y unzip openjdk-8-jre-headless xvfb libxi6 libgconf-2-4
+apt-get install -y unzip openjdk-8-jre-headless xvfb libxi6 libgconf-2-4 gnupg2
 
 # Install Chrome.
 curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
