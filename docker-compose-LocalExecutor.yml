@@ -19,6 +19,7 @@ services:
             - ./dags:/usr/local/airflow/dags
             - ./plugins:/usr/local/airflow/plugins
             - ./requirements.txt:/requirements.txt
+            - ./crawlers:/usr/local/airflow/crawlers
         ports:
             - "8080:8080"
         command: webserver
