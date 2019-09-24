@@ -11,6 +11,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 import time
 
+from pyvirtualdisplay import Display
+
 ANGELCO_EMAIL = None
 ANGELCO_PASSWORD = None
 
@@ -170,8 +172,11 @@ def main():
     print("Email: " + ANGELCO_EMAIL)
     print("Password: " + ANGELCO_PASSWORD)
 
+    display = Display(visible=0, size=(1440, 900))
+    display.start()
+
     options = Options()
-    options.headless = True
+    # options.headless = True
     options.add_argument("window-size=1920,1080")
     options.add_argument("disable-gpu")
     options.add_argument("disable-extensions")
@@ -179,6 +184,7 @@ def main():
     options.add_argument("proxy-bypass-list=*")
     options.add_argument("start-maximized")
     options.add_argument("no-sandbox")
+    options.add_argument("disable-dev-shm-usage")
 
     driver = selenium_create_driver(options=options)
     driver.set_window_size(1440, 900)
@@ -226,6 +232,8 @@ def main():
     scroll_down_all_pages(driver)
 
     save_all_startup_jobs(driver, 'crawlers/output')
+
+    display.stop()
 
 
 if __name__ == '__main__':
