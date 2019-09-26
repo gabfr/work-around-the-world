@@ -8,8 +8,8 @@ datasets/*
 datasets_alternatives
 dc.cfg
 dwh.cfg
-crawlers/output
-crawlers/output/*
+dags/crawlers/output
+dags/crawlers/output/*
 
 # C extensions
 *.so
