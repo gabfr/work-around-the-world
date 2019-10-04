@@ -21,8 +21,16 @@ dag = DAG('angel_co_jobs_dag',
           schedule_interval='@daily'
         )
 
+# 1st step - download all htmls
+
 run_selenium_crawler = PythonOperator(
     task_id='run_selenium_crawler',
     provide_context=False,
     python_callable=angel_co_crawler
 )
+
+# 2nd step - Parse all HTMLs into simple python data structures and insert into the jobs, companies and tags tables
+# Mostly another python operator
+
+# 3rd step - Delete all the HTML page files
+# Yet Another python operator
