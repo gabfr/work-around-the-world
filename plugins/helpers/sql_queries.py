@@ -413,3 +413,52 @@ class SqlQueries:
             staging_stackoverflow_jobs
         WHERE id NOT IN (SELECT j.id FROM job_vacancies j);
     """)
+
+    upsert_jobs_row = ("""
+        INSERT INTO jobs (
+            id, provider_id, remote_id_on_provider, remote_url, location, 
+            currency_code, company_id, company_name, title, description, 
+            tags, salary, salary_max, salary_frequency, has_relocation_package, 
+            expires_at, published_at
+        )
+        VALUES (
+            %(id)s, %(provider_id)s, %(remote_id_on_provider)s, %(remote_url)s, %(location)s, 
+            %(currency_code)s, %(company_id)s, %(company_name)s, %(title)s, %(description)s, 
+            %(tags)s, %(salary)s, %(salary_max)s, %(salary_frequency)s, %(has_relocation_package)s, 
+            %(expires_at)s, %(published_at)s
+        )
+        ON CONFLICT (id)
+        DO UPDATE SET
+            provider_id = jobs.provider_id, 
+            remote_id_on_provider = jobs.remote_id_on_provider, 
+            remote_url = jobs.remote_url, 
+            location = jobs.location, 
+            currency_code = jobs.currency_code, 
+            company_id = jobs.company_id, 
+            company_name = jobs.company_name, 
+            title = jobs.title, 
+            description = jobs.description, 
+            tags = jobs.tags, 
+            salary = jobs.salary, 
+            salary_max = jobs.salary_max, 
+            salary_frequency = jobs.salary_frequency, 
+            has_relocation_package = jobs.has_relocation_package, 
+            expires_at = jobs.expires_at, 
+            published_at = jobs.published_at
+    """)
+    # @TODO: The "ON CONFLICT" part won't work in a Redshift Cluster - remove it! we will have to create a table and then do a INSERT...SELECT
+
+    upsert_companies_row = ("""
+        INSERT INTO companies (id, name, remote_url) VALUES (%(id)s, %(name)s, %(remote_url)s)
+        ON CONFLICT (id)
+        DO UPDATE SET
+            name = companies.name, 
+            remote_url = companies.remote_url
+    """)
+    # @TODO: The "ON CONFLICT" part won't work in a Redshift Cluster - remove it! we will have to create a table and then do a INSERT...SELECT
+
+    upsert_tags_row = ("""
+        INSERT INTO tags (tag) VALUES (%(tag)s)
+        ON CONFLICT (tag) DO NOTHING
+    """)
+    # @TODO: The "ON CONFLICT" part won't work in a Redshift Cluster - remove it! we will have to create a table and then do a INSERT...SELECT

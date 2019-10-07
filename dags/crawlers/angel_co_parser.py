@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
 import glob, os
+from airflow.hooks.postgres_hook import PostgresHook
 
 
-def parse_jobs_vacancies(soup):
+def parse_jobs_vacancies(soup, redshift, company_infos):
     jobListings = soup.select('.details-row.jobs > .content > .listing-row')
     num_job_listings = 0
     jobs = []
@@ -30,13 +31,26 @@ def parse_jobs_vacancies(soup):
                 print('no risks')
         if len(compensations) >= 2:
             parsed_compensations['description_equity_range'] = compensations[1].strip()
+        
+        splitted_remote_url = job_remote_url.split('/')
             
         jobs.append({
-            'title': job_title,
+            'id': splitted_remote_url[ (len(splitted_remote_url) - 1) ],
+            'provider_id': 'angels_co',
+            'remote_id_on_provider': splitted_remote_url[ (len(splitted_remote_url) - 1) ],
             'remote_url': job_remote_url,
-            'tags': list(map(lambda x: x.strip(), tags)),
-            'compensations': compensations,
+            'location': None,
+            'currency_code': None,
+            'company_id': company_infos['id'],
+            'company_name': company_infos['name'],
+            'title': job_title,
+            'description': '',
+            'tags': ",".join(list(map(lambda x: x.strip(), tags))),
             **parsed_compensations,
+            'salary_frequency': None,
+            'has_relocation_package': True,
+            'expires_at': None,
+            'published_at': None,
         })
         num_job_listings += 1
     if num_job_listings > 1:
@@ -46,7 +60,7 @@ def parse_jobs_vacancies(soup):
     return False
 
 
-def parse_company_infos(soup):
+def parse_company_infos(soup, redshift):
     companyLinkElements = soup.select('.header-info .browse-table-row-name .startup-link')
     for companyLinkElement in companyLinkElements:
         remote_url = companyLinkElement['href']
@@ -60,21 +74,24 @@ def parse_company_infos(soup):
         }
 
 
-def parse_html_scrapped(file_path):
+def parse_html_scrapped(file_path, redshift):
     f = open(file_path, "r")
     if f.mode == 'r':
         soup = BeautifulSoup(f.read(), features="html.parser")
-        company_infos = parse_company_infos(soup)
-        return parse_jobs_vacancies(soup)
+        company_infos = parse_company_infos(soup, redshift)
+        return parse_jobs_vacancies(soup, redshift, company_infos)
         # print(company_infos)
 
 
 def main():
+    # 0 - Prepare the database connection
+    redshift = PostgresHook(postgres_conn_id="redshift")
+
     # 1 - open the output directory
 
     for file in os.listdir("crawlers/output"):
         if file.endswith(".html"):
-            parse_html_scrapped(os.path.join("crawlers/output", file))
+            parse_html_scrapped(os.path.join("crawlers/output", file), redshift)
     # 2 - read each html file in the output directory and write them to the database
 
 
