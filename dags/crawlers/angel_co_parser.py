@@ -15,26 +15,34 @@ def parse_jobs_vacancies(soup):
         job_remote_url = jobVacancyLink['href']
         tags = jobVacancyTags.get_text().split('·')
         compensations = jobVacancyCompensations.get_text().split('·')
+        parsed_compensations = {}
+        if len(compensations) >= 1:
+            parsed_compensations['description_salary_range'] = compensations[0].strip()
+            if '–' in parsed_compensations['description_salary_range']:
+                parsed_range = list(map(lambda x: x.strip(), parsed_compensations['description_salary_range'].split('–')))
+                if len(parsed_range) >= 1:
+                    parsed_compensations['salary'] = parsed_range[0]
+                if len(parsed_range) >= 2:
+                    parsed_compensations['salary_max'] = parsed_range[1]
+                else:
+                    parsed_compensations['salary_max'] = parsed_range[0]
+            else:
+                print('no risks')
+        if len(compensations) >= 2:
+            parsed_compensations['description_equity_range'] = compensations[1].strip()
+            
         jobs.append({
             'title': job_title,
             'remote_url': job_remote_url,
-            'tags': tags,
-            'compensations': compensations
+            'tags': list(map(lambda x: x.strip(), tags)),
+            'compensations': compensations,
+            **parsed_compensations,
         })
         num_job_listings += 1
     if num_job_listings > 1:
-        print('MORE THAN ONE!')
+        # print('MORE THAN ONE!')
         print(jobs)
         return True
-    # job vacancy title:
-    # .details-row.jobs > .content > .listing-row > .top > .title > a
-    jobTitleElements = soup.select('.details-row.jobs > .content > .listing-row > .top > .title > a')
-    for jobTitleElement in jobTitleElements:
-        job_infos = {
-            'remote_url': jobTitleElement['href'],
-            'title': jobTitleElement.get_text(),
-        }
-        # print(job_infos)
     return False
 
 
@@ -66,8 +74,7 @@ def main():
 
     for file in os.listdir("crawlers/output"):
         if file.endswith(".html"):
-            if parse_html_scrapped(os.path.join("crawlers/output", file)):
-                print('===================== READING FILE: {}'.format(file))
+            parse_html_scrapped(os.path.join("crawlers/output", file))
     # 2 - read each html file in the output directory and write them to the database
 
 
