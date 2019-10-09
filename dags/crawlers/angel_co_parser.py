@@ -1,9 +1,11 @@
 from bs4 import BeautifulSoup
 import glob, os
 from airflow.hooks.postgres_hook import PostgresHook
+from helpers import SqlQueries
+from psycopg2 import sql
 
 
-def parse_jobs_vacancies(soup, redshift, company_infos):
+def parse_jobs_vacancies(soup, redshift, cursor, company_infos):
     jobListings = soup.select('.details-row.jobs > .content > .listing-row')
     num_job_listings = 0
     jobs = []
@@ -31,10 +33,13 @@ def parse_jobs_vacancies(soup, redshift, company_infos):
                 print('no risks')
         if len(compensations) >= 2:
             parsed_compensations['description_equity_range'] = compensations[1].strip()
+
+        for tag_tag in tags:
+            cursor.execute(SqlQueries.upsert_tags_row, {'tag': tag_tag})
         
         splitted_remote_url = job_remote_url.split('/')
-            
-        jobs.append({
+
+        job_infos = {
             'id': splitted_remote_url[ (len(splitted_remote_url) - 1) ],
             'provider_id': 'angels_co',
             'remote_id_on_provider': splitted_remote_url[ (len(splitted_remote_url) - 1) ],
@@ -51,7 +56,9 @@ def parse_jobs_vacancies(soup, redshift, company_infos):
             'has_relocation_package': True,
             'expires_at': None,
             'published_at': None,
-        })
+        }
+        cursor.execute(SqlQueries.upsert_jobs_row, job_infos)
+        jobs.append(job_infos)
         num_job_listings += 1
     if num_job_listings > 1:
         # print('MORE THAN ONE!')
@@ -60,38 +67,41 @@ def parse_jobs_vacancies(soup, redshift, company_infos):
     return False
 
 
-def parse_company_infos(soup, redshift):
+def parse_company_infos(soup, redshift, cursor):
     companyLinkElements = soup.select('.header-info .browse-table-row-name .startup-link')
     for companyLinkElement in companyLinkElements:
         remote_url = companyLinkElement['href']
         remote_url_fragments = remote_url.split('/')
         remote_url_framengs_count = len(remote_url_fragments)
         remote_id = remote_url_fragments[remote_url_framengs_count - 2]
-        return {
+        company_infos = {
             'id': remote_id,
             'name': companyLinkElement.get_text(),
             'remote_url': remote_url
         }
+        cursor.execute(SqlQueries.upsert_companies_row, company_infos)
+        return company_infos
 
 
-def parse_html_scrapped(file_path, redshift):
+def parse_html_scrapped(file_path, redshift, cursor):
     f = open(file_path, "r")
     if f.mode == 'r':
         soup = BeautifulSoup(f.read(), features="html.parser")
-        company_infos = parse_company_infos(soup, redshift)
-        return parse_jobs_vacancies(soup, redshift, company_infos)
+        company_infos = parse_company_infos(soup, redshift, cursor)
+        return parse_jobs_vacancies(soup, redshift, cursor, company_infos)
         # print(company_infos)
 
 
 def main():
     # 0 - Prepare the database connection
     redshift = PostgresHook(postgres_conn_id="redshift")
+    cur = redshift.get_cursor()
 
     # 1 - open the output directory
 
     for file in os.listdir("crawlers/output"):
         if file.endswith(".html"):
-            parse_html_scrapped(os.path.join("crawlers/output", file), redshift)
+            parse_html_scrapped(os.path.join("crawlers/output", file), redshift, cur)
     # 2 - read each html file in the output directory and write them to the database
 
 
