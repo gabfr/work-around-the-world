@@ -5,7 +5,7 @@ from helpers import SqlQueries
 from psycopg2 import sql
 
 
-def parse_jobs_vacancies(soup, redshift, cursor, company_infos):
+def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
     jobListings = soup.select('.details-row.jobs > .content > .listing-row')
     num_job_listings = 0
     jobs = []
@@ -67,7 +67,7 @@ def parse_jobs_vacancies(soup, redshift, cursor, company_infos):
     return False
 
 
-def parse_company_infos(soup, redshift, cursor):
+def parse_company_infos(soup, pgsql, cursor):
     companyLinkElements = soup.select('.header-info .browse-table-row-name .startup-link')
     for companyLinkElement in companyLinkElements:
         remote_url = companyLinkElement['href']
@@ -83,25 +83,25 @@ def parse_company_infos(soup, redshift, cursor):
         return company_infos
 
 
-def parse_html_scrapped(file_path, redshift, cursor):
+def parse_html_scrapped(file_path, pgsql, cursor):
     f = open(file_path, "r")
     if f.mode == 'r':
         soup = BeautifulSoup(f.read(), features="html.parser")
-        company_infos = parse_company_infos(soup, redshift, cursor)
-        return parse_jobs_vacancies(soup, redshift, cursor, company_infos)
+        company_infos = parse_company_infos(soup, pgsql, cursor)
+        return parse_jobs_vacancies(soup, pgsql, cursor, company_infos)
         # print(company_infos)
 
 
 def main():
     # 0 - Prepare the database connection
-    redshift = PostgresHook(postgres_conn_id="redshift")
-    cur = redshift.get_cursor()
+    pgsql = PostgresHook(postgres_conn_id="pgsql")
+    cur = pgsql.get_cursor()
 
     # 1 - open the output directory
 
     for file in os.listdir("crawlers/output"):
         if file.endswith(".html"):
-            parse_html_scrapped(os.path.join("crawlers/output", file), redshift, cur)
+            parse_html_scrapped(os.path.join("crawlers/output", file), pgsql, cur)
     # 2 - read each html file in the output directory and write them to the database
 
 
