@@ -170,7 +170,7 @@ class SqlQueries:
             id VARCHAR(38) PRIMARY KEY,
             type VARCHAR(100),
             url VARCHAR(1000),
-            created_at TIMESTAMP SORTKEY,
+            created_at TIMESTAMP,
             company VARCHAR(500),
             company_url VARCHAR(1000),
             location VARCHAR(500),
@@ -238,7 +238,7 @@ class SqlQueries:
         DROP TABLE IF EXISTS staging_landing_jobs;
         CREATE TABLE staging_landing_jobs (
             id INT8 PRIMARY KEY,
-            city VARCHAR(255) DISTKEY,
+            city VARCHAR(255),
             company_id INT8,
             country_code VARCHAR(5),
             country_name VARCHAR(255),
@@ -333,12 +333,12 @@ class SqlQueries:
         CREATE TABLE staging_stackoverflow_jobs (
             id VARCHAR(50) PRIMARY KEY,
             remote_url VARCHAR(1000),
-            location VARCHAR(500) DISTKEY,
+            location VARCHAR(500),
             company_name VARCHAR(1000),
             title VARCHAR(1000),
             description VARCHAR(65535),
             tags VARCHAR(65535),
-            published_at TIMESTAMP SORTKEY
+            published_at TIMESTAMP
         );
     """)
 
@@ -446,7 +446,6 @@ class SqlQueries:
             expires_at = jobs.expires_at, 
             published_at = jobs.published_at
     """)
-    # @TODO: The "ON CONFLICT" part won't work in a Redshift Cluster - remove it! we will have to create a table and then do a INSERT...SELECT
 
     upsert_companies_row = ("""
         INSERT INTO companies (id, name, remote_url) VALUES (%(id)s, %(name)s, %(remote_url)s)
@@ -455,10 +454,8 @@ class SqlQueries:
             name = companies.name, 
             remote_url = companies.remote_url
     """)
-    # @TODO: The "ON CONFLICT" part won't work in a Redshift Cluster - remove it! we will have to create a table and then do a INSERT...SELECT
 
     upsert_tags_row = ("""
         INSERT INTO tags (tag) VALUES (%(tag)s)
         ON CONFLICT (tag) DO NOTHING
     """)
-    # @TODO: The "ON CONFLICT" part won't work in a Redshift Cluster - remove it! we will have to create a table and then do a INSERT...SELECT

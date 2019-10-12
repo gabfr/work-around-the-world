@@ -14,10 +14,15 @@ project.
 ## Getting started
 
 This project is based on several DAGs (Directed Acyclic Graphs) that are executed on Apache Airflow, moreover I used
-Airflow to orchestrate all ETL processes and maintain their correct frequency along with a AWS Redshift database cluster.
+Airflow to orchestrate all ETL processes and maintain their correct frequency along with a PostgreSQL database.
 
 So, the first thing you need to do is to configure your airflow home to this project. Don't forget to leverage the
 plugins configuration too. Otherwise the operators I created will not be found by Airflow.
+
+### Using Redshift as PostgreSQL database _(optional - not recommended)_
+
+At a first glance this project was prepared to use a Redshift cluster. If you opt to do this, you'll need to adapt
+some queries within the `plugins/helpers/sql_queries.py` (check this commit to learn more: [1c041cfdef684f3e1a384ece3744939e7150f85](https://github.com/gabfr/work-around-the-world/commit/1c041cfdef684f3e1a384ece3744939e7150f854) ).
 
 Then, create (if not already created) your Redshift cluster. I provided a few scripts to help spining up a Redshift
 cluster using the AWS API, directly from the command line. Before diving into them, make a copy of the `dwh.cfg.example`
@@ -56,7 +61,7 @@ the other configurations should be done as the other fields column states:
 
 | Service | Conn ID | Conn Type | Other fields |
 | ------- | ------- | --------- | ------------------ |
-| Redshift | `redshift` | `Postgres` | This one you should figure out by yourself. (It's your database credentials!) |
+| PostgreSQL | `pgsql` | `Postgres` | This one you should figure out by yourself. (It's your database credentials!) |
 | Amazon Web Services Credentials | `aws_credentials` | `Amazon Web Services` | On the **login** field you fill with your API Key. And in the password field you fill with your API Secret. |
 | GitHub Jobs API | `github_jobs` | `HTTP` | `Schema = https` and `Host = jobs.github.com` |
 | Landing.jobs API | `landing_jobs` | `HTTP` | `Schema = https` and `Host = landing.jobs` |

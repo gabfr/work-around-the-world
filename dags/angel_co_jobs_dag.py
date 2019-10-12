@@ -17,7 +17,7 @@ default_args = {
 
 dag = DAG('angel_co_jobs_dag',
           default_args=default_args,
-          description='Load the jobs dataset and insert into Redshift',
+          description='Load the jobs dataset and insert into PostgreSQL',
           schedule_interval='@daily'
         )
 

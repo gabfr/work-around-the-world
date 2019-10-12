@@ -3,7 +3,7 @@ from create_cluster import (
     config_parse_file, config_get_dict,
     # AWS Credentials
     KEY, SECRET,
-    # Redshift Credentials
+    # PostgreSQL Credentials
     DWH_DB, DWH_DB_USER, DWH_DB_PASSWORD,
     DWH_HOST, DWH_PORT,
 )
@@ -17,7 +17,7 @@ def main():
 
     connections = [
         Connection(
-            conn_id="redshift", conn_type="postgres",
+            conn_id="pgsql", conn_type="postgres",
             host=cfgs['DWH_HOST'], port=cfgs['DWH_PORT'], schema=cfgs['DWH_DB'], login=cfgs['DWH_DB_USER'],
             password=cfgs['DWH_DB_PASSWORD'],
         ),
