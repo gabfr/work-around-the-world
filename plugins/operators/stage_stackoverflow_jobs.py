@@ -17,21 +17,21 @@ class StageStackoverflowJobsOperator(BaseOperator):
                  # Define your operators params (with defaults) here
                  # Example:
                  # conn_id = your-connection-name
-                 redshift_conn_id,
+                 pgsql_conn_id,
                  http_conn_id,
                  *args, **kwargs):
 
         super(StageStackoverflowJobsOperator, self).__init__(*args, **kwargs)
 
-        self.redshift_conn_id = redshift_conn_id
+        self.pgsql_conn_id = pgsql_conn_id
         self.http_conn_id = http_conn_id
 
     def execute(self, context):
-        redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
+        pgsql = PostgresHook(postgres_conn_id=self.pgsql_conn_id)
         http = HttpHook(http_conn_id=self.http_conn_id, method='GET')
 
         self.log.info("Will recreate the table staging_stackoverflow_jobs...")
-        redshift.run(SqlQueries.recreate_staging_stackoverflow_jobs_table)
+        pgsql.run(SqlQueries.recreate_staging_stackoverflow_jobs_table)
 
         endpoint = '/jobs/feed'
         self.log.info(f"Will request Stackoverflow RSS Feed...")
@@ -39,11 +39,11 @@ class StageStackoverflowJobsOperator(BaseOperator):
         feed = feedparser.parse(response.text)
         results = feed.entries
         results_len = len(results)
-        inserted_results = self.insert_results_on_staging(redshift, results)
+        inserted_results = self.insert_results_on_staging(pgsql, results)
 
         self.log.info(f"Done fetching the {inserted_results}/{results_len} registries in total.")
 
-    def insert_results_on_staging(self, redshift, results):
+    def insert_results_on_staging(self, pgsql, results):
         results_len = len(results)
 
         self.log.info(f"Will insert the results on the staging_stackoverflow_jobs table (results length: {results_len})...")
@@ -63,7 +63,7 @@ class StageStackoverflowJobsOperator(BaseOperator):
                 ",".join(list(map(lambda t: t.term, post.tags))) if 'tags' in post else None, # 'tags':
                 datetime.fromtimestamp(mktime(post.published_parsed)).strftime("%Y-%m-%d %H:%M:%S") # 'published_at':
             ]
-            redshift.run(SqlQueries.insert_into_staging_stackoverflow_jobs, parameters=registry)
+            pgsql.run(SqlQueries.insert_into_staging_stackoverflow_jobs, parameters=registry)
         self.log.info("Done!")
 
 
