@@ -215,7 +215,6 @@ this is done with a few clicks on the AWS dashboard.
 
 ## Roadmap
 
- - [ ] Unload the crawled jobs to write the jobs/tags/companies table back to AWS S3
  - [X] Create a DAG to crawl the Angel.co - probably needs to use selenium (can use as inspiration/benchmark: 
  https://github.com/muladzevitali/AngelList)
    - [X] Modify the `puckel/docker-airflow` to leverage the `chromedriver` installation to work with the `selenium`
