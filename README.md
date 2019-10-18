@@ -221,6 +221,7 @@ this is done with a few clicks on the AWS dashboard.
    - [X] Modify the `puckel/docker-airflow` to leverage the `chromedriver` installation to work with the `selenium`
    possibly by making a `Dockerfile`
    - [X] Create the `angels_co_jobs_dag` that will use selenium to crawl their site and store the jobs informations
- - [ ] Create a DAG to load the crawled `jobs` to the Algolia Search Provider, a free API to query those jobs
+ - [X] Create a DAG to load the crawled `jobs` to the Algolia Search Provider, a free API to query those jobs
+ - [ ] On `angel_co.py` the `'published_at': None,` Needs to be reviewed. published_at is mandatory for this table
  - [ ] Refactor the angels.co DAG to use the airflow credentials management to store the angels.co email/password
  - [ ] Create a simple web application to navigate/search in the data of these crawled jobs
