@@ -6,8 +6,9 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.hooks.base_hook import BaseHook
 from airflow.hooks.postgres_hook import PostgresHook
 from algoliasearch.search_client import SearchClient
+from airflow.sensors.external_task_sensor import ExternalTaskSensor
 
-def index_jobs_task(**context):
+def index_jobs(**context):
     global algolia_conn_id
 
     pgsql = PostgresHook(postgres_conn_id="pgsql")
@@ -49,6 +50,8 @@ def index_jobs_task(**context):
     rows = cur.fetchall()
     index.save_objects(rows)
 
+def sensor_date(dt):
+    return dt.replace(hour=0, minute=0, second=0)
 
 default_args = {
     'owner': 'gabriel',
@@ -59,15 +62,53 @@ default_args = {
     'catchup': False
 }
 
+
 dag = DAG('algoliasearch_index_jobs_dag',
           default_args=default_args,
           description='Index all jobs from our PostgreSQL database',
           schedule_interval='@daily'
         )
 
-run_selenium_crawler = PythonOperator(
-    dag=dag,
-    task_id='run_selenium_crawler',
-    provide_context=True,
-    python_callable=index_jobs_task
+wait_stackoverflow_jobs_rss_feed_dag = ExternalTaskSensor(
+    task_id='wait_stackoverflow_jobs_rss_feed_dag',
+    external_dag_id='stackoverflow_jobs_rss_feed_dag',
+    external_task_id=None,
+    execution_date_fn=sensor_date,
+    dag=dag, mode='reschedule'
 )
+
+wait_landing_jobs_api_dag = ExternalTaskSensor(
+    task_id='wait_landing_jobs_api_dag',
+    external_dag_id='landing_jobs_api_dag',
+    external_task_id=None,
+    execution_date_fn=sensor_date,
+    dag=dag, mode='reschedule'
+)
+
+wait_github_jobs_api_dag = ExternalTaskSensor(
+    task_id='wait_github_jobs_api_dag',
+    external_dag_id='github_jobs_api_dag',
+    external_task_id=None,
+    execution_date_fn=sensor_date,
+    dag=dag, mode='reschedule'
+)
+
+wait_angel_co_jobs_dag = ExternalTaskSensor(
+    task_id='wait_angel_co_jobs_dag',
+    external_dag_id='angel_co_jobs_dag',
+    external_task_id=None,
+    execution_date_fn=sensor_date,
+    dag=dag, mode='reschedule'
+)
+
+index_jobs_task = PythonOperator(
+    dag=dag,
+    task_id='index_jobs_task',
+    provide_context=True,
+    python_callable=index_jobs
+)
+
+wait_stackoverflow_jobs_rss_feed_dag >> index_jobs_task
+wait_landing_jobs_api_dag >> index_jobs_task
+wait_github_jobs_api_dag >> index_jobs_task
+wait_angel_co_jobs_dag >> index_jobs_task
