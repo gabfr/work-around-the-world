@@ -66,6 +66,7 @@ the other configurations should be done as the other fields column states:
 | GitHub Jobs API | `github_jobs` | `HTTP` | `Schema = https` and `Host = jobs.github.com` |
 | Landing.jobs API | `landing_jobs` | `HTTP` | `Schema = https` and `Host = landing.jobs` |
 | Stackoverflow Jobs RSS Feed | `stackoverflow_jobs` | `HTTP` | `Schema = https` and `Host = stackoverflow.com` |
+| Algolia Search Provider | `algolia` | `HTTP` | `Login = your algolia application id` and `Password = your admin API key` |
 
 ### Airflow DAGs
 
