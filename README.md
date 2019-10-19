@@ -14,10 +14,15 @@ project.
 ## Getting started
 
 This project is based on several DAGs (Directed Acyclic Graphs) that are executed on Apache Airflow, moreover I used
-Airflow to orchestrate all ETL processes and maintain their correct frequency along with a AWS Redshift database cluster.
+Airflow to orchestrate all ETL processes and maintain their correct frequency along with a PostgreSQL database.
 
 So, the first thing you need to do is to configure your airflow home to this project. Don't forget to leverage the
 plugins configuration too. Otherwise the operators I created will not be found by Airflow.
+
+### Using Redshift as PostgreSQL database _(optional - not recommended)_
+
+At a first glance this project was prepared to use a Redshift cluster. If you opt to do this, you'll need to adapt
+some queries within the `plugins/helpers/sql_queries.py` (check this commit to learn more: [1c041cfdef684f3e1a384ece3744939e7150f85](https://github.com/gabfr/work-around-the-world/commit/1c041cfdef684f3e1a384ece3744939e7150f854) ).
 
 Then, create (if not already created) your Redshift cluster. I provided a few scripts to help spining up a Redshift
 cluster using the AWS API, directly from the command line. Before diving into them, make a copy of the `dwh.cfg.example`
@@ -37,6 +42,17 @@ as `dwh.cfg` and fill all the keys (except the `HOST` under `CLUSTER` section). 
 
 After doing that, before activating the DAGs you have to configure the following Airflow connections:
 
+### Running Airflow locally
+
+We will use Docker to provision our local environment and to ease the production deployment process too (if required). 
+The Docker image we will use is the `puckel/docker-airflow`
+
+**Inside the root folder of this project run the following command (it will build and compose the containers):**
+
+```
+docker build -t puckel/docker-airflow . && docker-compose -f docker-compose-LocalExecutor.yml up -d
+```
+
 ### Airflow Connections
 
 If you hit on the wall with the `python aws/register_airflow_connections.py` below we have a table with a dictionary
@@ -45,11 +61,13 @@ the other configurations should be done as the other fields column states:
 
 | Service | Conn ID | Conn Type | Other fields |
 | ------- | ------- | --------- | ------------------ |
-| Redshift | `redshift` | `Postgres` | This one you should figure out by yourself. (It's your database credentials!) |
+| PostgreSQL | `pgsql` | `Postgres` | This one you should figure out by yourself. (It's your database credentials!) |
 | Amazon Web Services Credentials | `aws_credentials` | `Amazon Web Services` | On the **login** field you fill with your API Key. And in the password field you fill with your API Secret. |
 | GitHub Jobs API | `github_jobs` | `HTTP` | `Schema = https` and `Host = jobs.github.com` |
 | Landing.jobs API | `landing_jobs` | `HTTP` | `Schema = https` and `Host = landing.jobs` |
 | Stackoverflow Jobs RSS Feed | `stackoverflow_jobs` | `HTTP` | `Schema = https` and `Host = stackoverflow.com` |
+| Algolia Search Provider | `algolia` | `HTTP` | `Login = your algolia application id` and `Password = your admin API key` |
+| Angel.co user | `angel_co` | `HTTP` | `Login = your email` and `Password = your password` |
 
 ### Airflow DAGs
 
@@ -199,9 +217,12 @@ this is done with a few clicks on the AWS dashboard.
 
 ## Roadmap
 
- - [ ] Unload the crawled jobs to write the jobs/tags/companies table back to AWS S3
- - [ ] Create a DAG to crawl the Angel.co - probably needs to use selenium (can use as inspiration/benchmark: 
+ - [X] Create a DAG to crawl the Angel.co - probably needs to use selenium (can use as inspiration/benchmark: 
  https://github.com/muladzevitali/AngelList)
- - [ ] Load the crawled jobs/tags/companies to a relational database with low-cost to host (self hosted Postgres maybe?
- it's just a matter of configuring the self-hosted database :)
+   - [X] Modify the `puckel/docker-airflow` to leverage the `chromedriver` installation to work with the `selenium`
+   possibly by making a `Dockerfile`
+   - [X] Create the `angels_co_jobs_dag` that will use selenium to crawl their site and store the jobs informations
+ - [X] Create a DAG to load the crawled `jobs` to the Algolia Search Provider, a free API to query those jobs
+ - [X] On `angel_co.py` the `'published_at': None,` Needs to be reviewed. published_at is mandatory for this table
+ - [X] Refactor the angels.co DAG to use the airflow credentials management to store the angels.co email/password
  - [ ] Create a simple web application to navigate/search in the data of these crawled jobs
