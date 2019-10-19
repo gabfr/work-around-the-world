@@ -1,5 +1,7 @@
 import math
 
+from airflow.hooks.base_hook import BaseHook
+
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import ActionChains, DesiredCapabilities
@@ -12,25 +14,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 import time
 
 from pyvirtualdisplay import Display
-
-ANGELCO_EMAIL = None
-ANGELCO_PASSWORD = None
-
-
-def config_parse_file():
-    """
-    Parse the dwh.cfg configuration file
-    :return:
-    """
-    global ANGELCO_EMAIL, ANGELCO_PASSWORD
-
-    print("Parsing the config file...")
-    config = configparser.ConfigParser()
-    with open('dwh.cfg') as configfile:
-        config.read_file(configfile)
-
-        ANGELCO_EMAIL = config.get('ANGELCO', 'EMAIL')
-        ANGELCO_PASSWORD = config.get('ANGELCO', 'PASSWORD')
 
 
 def selenium_create_driver(executable_path=r'/usr/local/bin/chromedriver', options=None, capabilities=None):
@@ -69,9 +52,11 @@ def do_login(driver):
     if email_input is None or password_input is None:
         print('Cant follow to type the email/password')
         return
+    
+    angel_co_conn = BaseHook.get_connection('angel_co')
 
-    email_input.send_keys(ANGELCO_EMAIL)
-    password_input.send_keys(ANGELCO_PASSWORD)
+    email_input.send_keys(angel_co_conn.login)
+    password_input.send_keys(angel_co_conn.password)
 
     login_form_button = lazy_get_element(driver, '.s-form input[type="submit"]')
     if login_form_button is None:
@@ -165,13 +150,6 @@ def save_all_startup_jobs(driver, output_directory):
 
 
 def main():
-    global ANGELCO_EMAIL, ANGELCO_PASSWORD
-
-    config_parse_file()
-
-    print("Email: " + ANGELCO_EMAIL)
-    print("Password: " + ANGELCO_PASSWORD)
-
     display = Display(visible=0, size=(1440, 900))
     display.start()
 
