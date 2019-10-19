@@ -3,6 +3,7 @@ import glob, os
 from airflow.hooks.postgres_hook import PostgresHook
 from helpers import SqlQueries
 from psycopg2 import sql
+from datetime import datetime
 
 
 def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
@@ -55,7 +56,7 @@ def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
             'salary_frequency': None,
             'has_relocation_package': True,
             'expires_at': None,
-            'published_at': None, # @TODO: Needs to be reviewed. published_at is mandatory for this table
+            'published_at': str(datetime.now()), # @TODO: Needs to be reviewed. published_at is mandatory for this table
         }
         cursor.execute(SqlQueries.upsert_jobs_row, job_infos)
         jobs.append(job_infos)
