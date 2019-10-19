@@ -23,9 +23,9 @@ dag = DAG('angel_co_jobs_dag',
 
 # 1st step - download all htmls
 
-run_selenium_crawler = PythonOperator(
+run_selenium_scraper = PythonOperator(
     dag=dag,
-    task_id='run_selenium_crawler',
+    task_id='run_selenium_scraper',
     provide_context=False,
     python_callable=angel_co_crawler
 )
