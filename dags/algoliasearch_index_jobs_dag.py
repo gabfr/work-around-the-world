@@ -15,7 +15,7 @@ def index_jobs(**context):
     cur = pgsql.get_cursor()
 
     algolia_conn = BaseHook.get_connection('algolia')
-    client = SearchClient.create(algolia_conn)
+    client = SearchClient.create(algolia_conn.login, algolia_conn.password)
     index = client.init_index('jobs')
     
     jobs_sql_query = """
