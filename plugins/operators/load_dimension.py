@@ -18,7 +18,7 @@ class LoadDimensionOperator(BaseOperator):
                  # Define your operators params (with defaults) here
                  # Example:
                  # conn_id = your-connection-name
-                 redshift_conn_id,
+                 pgsql_conn_id,
                  table,
                  select_query,
                  truncate_table=False,
@@ -26,22 +26,22 @@ class LoadDimensionOperator(BaseOperator):
 
         super(LoadDimensionOperator, self).__init__(*args, **kwargs)
 
-        self.redshift_conn_id = redshift_conn_id
+        self.pgsql_conn_id = pgsql_conn_id
         self.table = table
         self.select_query = select_query
         self.truncate_table = truncate_table
 
     def execute(self, context):
-        redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
+        pgsql = PostgresHook(postgres_conn_id=self.pgsql_conn_id)
 
         if self.truncate_table:
             self.log.info("Will truncate table before inserting new data...")
-            redshift.run(LoadDimensionOperator.truncate_stmt.format(
+            pgsql.run(LoadDimensionOperator.truncate_stmt.format(
                 table=self.table
             ))
 
         self.log.info("Inserting dimension table data...")
-        redshift.run(LoadDimensionOperator.insert_into_stmt.format(
+        pgsql.run(LoadDimensionOperator.insert_into_stmt.format(
             table=self.table,
             select_query=self.select_query
         ))

@@ -8,7 +8,7 @@ from crawlers.angel_co import main as angel_co_crawler
 
 default_args = {
     'owner': 'gabriel',
-    'start_date': datetime(2019, 8, 21),
+    'start_date': datetime(2019, 10, 19),
     'depends_on_past': False,
     'retries': 1,
     'retry_delay': timedelta(seconds=300),
@@ -23,9 +23,9 @@ dag = DAG('angel_co_jobs_dag',
 
 # 1st step - download all htmls
 
-run_selenium_crawler = PythonOperator(
+run_selenium_scraper = PythonOperator(
     dag=dag,
-    task_id='run_selenium_crawler',
+    task_id='run_selenium_scraper',
     provide_context=False,
     python_callable=angel_co_crawler
 )

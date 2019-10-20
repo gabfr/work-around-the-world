@@ -40,7 +40,7 @@ def index_jobs(**context):
         c.id AS child_company_id,
         c.name AS child_company_name,
         c.remote_url AS child_company_remote_url,
-      FROM jobs j
+      FROM job_vacancies j
         LEFT JOIN companies c ON (c.id = j.company_id)
       WHERE
         CAST(j.published_at AS DATE) = '{}'::DATE
@@ -55,7 +55,7 @@ def sensor_date(dt):
 
 default_args = {
     'owner': 'gabriel',
-    'start_date': datetime(2019, 8, 21),
+    'start_date': datetime(2019, 10, 19),
     'depends_on_past': False,
     'retries': 1,
     'retry_delay': timedelta(seconds=300),
