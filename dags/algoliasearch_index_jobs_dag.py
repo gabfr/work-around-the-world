@@ -40,7 +40,7 @@ def index_jobs(**context):
         c.id AS child_company_id,
         c.name AS child_company_name,
         c.remote_url AS child_company_remote_url,
-      FROM jobs j
+      FROM job_vacancies j
         LEFT JOIN companies c ON (c.id = j.company_id)
       WHERE
         CAST(j.published_at AS DATE) = '{}'::DATE

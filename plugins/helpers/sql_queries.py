@@ -415,7 +415,7 @@ class SqlQueries:
     """)
 
     upsert_jobs_row = ("""
-        INSERT INTO jobs (
+        INSERT INTO job_vacancies (
             id, provider_id, remote_id_on_provider, remote_url, location, 
             currency_code, company_id, company_name, title, description, 
             tags, salary, salary_max, salary_frequency, has_relocation_package, 
@@ -429,22 +429,22 @@ class SqlQueries:
         )
         ON CONFLICT (id)
         DO UPDATE SET
-            provider_id = jobs.provider_id, 
-            remote_id_on_provider = jobs.remote_id_on_provider, 
-            remote_url = jobs.remote_url, 
-            location = jobs.location, 
-            currency_code = jobs.currency_code, 
-            company_id = jobs.company_id, 
-            company_name = jobs.company_name, 
-            title = jobs.title, 
-            description = jobs.description, 
-            tags = jobs.tags, 
-            salary = jobs.salary, 
-            salary_max = jobs.salary_max, 
-            salary_frequency = jobs.salary_frequency, 
-            has_relocation_package = jobs.has_relocation_package, 
-            expires_at = jobs.expires_at, 
-            published_at = jobs.published_at
+            provider_id = job_vacancies.provider_id, 
+            remote_id_on_provider = job_vacancies.remote_id_on_provider, 
+            remote_url = job_vacancies.remote_url, 
+            location = job_vacancies.location, 
+            currency_code = job_vacancies.currency_code, 
+            company_id = job_vacancies.company_id, 
+            company_name = job_vacancies.company_name, 
+            title = job_vacancies.title, 
+            description = job_vacancies.description, 
+            tags = job_vacancies.tags, 
+            salary = job_vacancies.salary, 
+            salary_max = job_vacancies.salary_max, 
+            salary_frequency = job_vacancies.salary_frequency, 
+            has_relocation_package = job_vacancies.has_relocation_package, 
+            expires_at = job_vacancies.expires_at, 
+            published_at = job_vacancies.published_at
     """)
 
     upsert_companies_row = ("""
