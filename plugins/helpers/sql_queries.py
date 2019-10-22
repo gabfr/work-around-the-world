@@ -264,25 +264,9 @@ class SqlQueries:
     """)
 
     select_tags_from_landing_jobs = ("""
-        with NS AS (
-          SELECT 1 as n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL 
-          SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL 
-          SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15 UNION ALL 
-          SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20 UNION ALL 
-          SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24 UNION ALL SELECT 25 UNION ALL 
-          SELECT 26 UNION ALL SELECT 27 UNION ALL SELECT 28 UNION ALL SELECT 29 UNION ALL SELECT 30 UNION ALL 
-          SELECT 31 UNION ALL SELECT 32 UNION ALL SELECT 33 UNION ALL SELECT 34 UNION ALL SELECT 35 UNION ALL 
-          SELECT 36 UNION ALL SELECT 37 UNION ALL SELECT 38 UNION ALL SELECT 39 UNION ALL SELECT 40 UNION ALL 
-          SELECT 41 UNION ALL SELECT 42 UNION ALL SELECT 43 UNION ALL SELECT 44 UNION ALL SELECT 45 UNION ALL 
-          SELECT 46 UNION ALL SELECT 47 UNION ALL SELECT 48 UNION ALL SELECT 49 UNION ALL SELECT 50 UNION ALL 
-          SELECT 51 UNION ALL SELECT 52 UNION ALL SELECT 53 UNION ALL SELECT 54 UNION ALL SELECT 55 UNION ALL 
-          SELECT 56 UNION ALL SELECT 57 UNION ALL SELECT 58 UNION ALL SELECT 59 UNION ALL SELECT 60
-        )
-        select distinct 
-            trim(split_part(S.tags, ',', NS.n)) as "tag"
-        from NS
-        inner join staging_landing_jobs S ON NS.n <= REGEXP_COUNT(S.tags, ',') + 1
-        where LEN("tag") <= 50 and "tag" not in (select "tag" from tags);
+        SELECT DISTINCT s.token AS "tag"
+        FROM   staging_landing_jobs t, unnest(string_to_array(t.tags, ',')) s(token)
+        WHERE  LENGTH(s.token) <= 50 and s.token not in (select "tag" from tags);
     """)
 
     select_job_vacancies_from_landing_jobs = ("""
@@ -308,11 +292,11 @@ class SqlQueries:
             gross_salary_high as salary_max,
             'anually' as salary_frequency,
             relocation_paid as has_relocation_package,
-            TO_TIMESTAMP(expires_at, 'YYYY-MM-DD') as expires_at,
+            TO_CHAR(expires_at, 'YYYY-MM-DD') as expires_at,
             created_at as published_at
         FROM
             staging_landing_jobs
-        WHERE id NOT IN (SELECT j.id FROM job_vacancies j);
+        WHERE CAST(id AS CHAR) NOT IN (SELECT j.id FROM job_vacancies j);
     """)
 
     insert_into_staging_landing_jobs_table = ("""
