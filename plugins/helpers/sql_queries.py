@@ -193,18 +193,29 @@ class SqlQueries:
     """)
 
     select_companies_from_github_jobs = ("""
-        select distinct 
-            REPLACE(TRIM(regexp_replace(translate(
-                LOWER(company),
-                'áàâãäåāăąèééêëēĕėęěìíîïìĩīĭḩóôõöōŏőùúûüũūŭůäàáâãåæçćĉčöòóôõøüùúûßéèêëýñîìíïş',
-                'aaaaaaaaaeeeeeeeeeeiiiiiiiihooooooouuuuuuuuaaaaaaeccccoooooouuuuseeeeyniiiis'
-            ), '[^a-z0-9\-]+', ' ')),' ', '-') as id,
-            company AS name,
-            company_url as remote_url
-        from 
-            staging_github_jobs
-        where
-            id not in (select id from companies);
+        SELECT DISTINCT
+            t_tmp.company_id as id,
+            sgj.company AS name,
+            t_tmp.company_url as remote_url
+        FROM 
+            (
+	           SELECT REPLACE(TRIM(regexp_replace(translate(
+		                LOWER(company),
+		                'áàâãäåāăąèééêëēĕėęěìíîïìĩīĭḩóôõöōŏőùúûüũūŭůäàáâãåæçćĉčöòóôõøüùúûßéèêëýñîìíïş',
+		                'aaaaaaaaaeeeeeeeeeeiiiiiiiihooooooouuuuuuuuaaaaaaeccccoooooouuuuseeeeyniiiis'
+		            ), '[^a-z0-9\-]+', ' ')),' ', '-') as company_id,
+		            MAX(id) AS job_id,
+		            MAX(company_url) AS company_url
+				FROM staging_github_jobs
+				GROUP BY REPLACE(TRIM(regexp_replace(translate(
+				                LOWER(company),
+				                'áàâãäåāăąèééêëēĕėęěìíîïìĩīĭḩóôõöōŏőùúûüũūŭůäàáâãåæçćĉčöòóôõøüùúûßéèêëýñîìíïş',
+				                'aaaaaaaaaeeeeeeeeeeiiiiiiiihooooooouuuuuuuuaaaaaaeccccoooooouuuuseeeeyniiiis'
+				            ), '[^a-z0-9\-]+', ' ')),' ', '-')
+            ) t_tmp
+            LEFT JOIN staging_github_jobs sgj ON (sgj.id = t_tmp.job_id)
+        WHERE
+            t_tmp.company_id NOT IN (SELECT id FROM companies);
     """)
 
     select_job_vacancies_from_github_jobs = ("""
