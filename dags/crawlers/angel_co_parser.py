@@ -27,7 +27,7 @@ def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
         if len(compensations) >= 1:
             parsed_compensations['description_salary_range'] = compensations[0].strip()
             if '–' in parsed_compensations['description_salary_range']:
-                parsed_range = list(map(lambda x: x.strip(), parsed_compensations['description_salary_range'].split('–')))
+                parsed_range = list(map(lambda x: x.strip().replace('k', '000'), parsed_compensations['description_salary_range'].split('–')))
                 if len(parsed_range) >= 1:
                     parsed_compensations['salary'] = Decimal(sub(r'[^\d.]', '', parsed_range[0]))
                 if len(parsed_range) >= 2:
