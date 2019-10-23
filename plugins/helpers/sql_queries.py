@@ -346,40 +346,34 @@ class SqlQueries:
     """)
 
     select_tags_from_stackoverflow_jobs = ("""
-        with NS AS (
-          SELECT 1 as n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL 
-          SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL 
-          SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL SELECT 14 UNION ALL SELECT 15 UNION ALL 
-          SELECT 16 UNION ALL SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20 UNION ALL 
-          SELECT 21 UNION ALL SELECT 22 UNION ALL SELECT 23 UNION ALL SELECT 24 UNION ALL SELECT 25 UNION ALL 
-          SELECT 26 UNION ALL SELECT 27 UNION ALL SELECT 28 UNION ALL SELECT 29 UNION ALL SELECT 30 UNION ALL 
-          SELECT 31 UNION ALL SELECT 32 UNION ALL SELECT 33 UNION ALL SELECT 34 UNION ALL SELECT 35 UNION ALL 
-          SELECT 36 UNION ALL SELECT 37 UNION ALL SELECT 38 UNION ALL SELECT 39 UNION ALL SELECT 40 UNION ALL 
-          SELECT 41 UNION ALL SELECT 42 UNION ALL SELECT 43 UNION ALL SELECT 44 UNION ALL SELECT 45 UNION ALL 
-          SELECT 46 UNION ALL SELECT 47 UNION ALL SELECT 48 UNION ALL SELECT 49 UNION ALL SELECT 50 UNION ALL 
-          SELECT 51 UNION ALL SELECT 52 UNION ALL SELECT 53 UNION ALL SELECT 54 UNION ALL SELECT 55 UNION ALL 
-          SELECT 56 UNION ALL SELECT 57 UNION ALL SELECT 58 UNION ALL SELECT 59 UNION ALL SELECT 60
-        )
-        select distinct 
-            trim(split_part(S.tags, ',', NS.n)) as "tag"
-        from NS
-        inner join staging_stackoverflow_jobs S ON NS.n <= REGEXP_COUNT(S.tags, ',') + 1
-        where LEN("tag") <= 50 and "tag" not in (select "tag" from tags);
+        SELECT DISTINCT s.token AS "tag"
+        FROM   staging_stackoverflow_jobs t, unnest(string_to_array(t.tags, ',')) s(token)
+        WHERE  LENGTH(s.token) <= 50 and s.token not in (select "tag" from tags);
     """)
 
     select_companies_from_stackoverflow_jobs = ("""
-        select distinct 
-            REPLACE(TRIM(regexp_replace(translate(
-                LOWER(company_name),
-                'áàâãäåāăąèééêëēĕėęěìíîïìĩīĭḩóôõöōŏőùúûüũūŭůäàáâãåæçćĉčöòóôõøüùúûßéèêëýñîìíïş',
-                'aaaaaaaaaeeeeeeeeeeiiiiiiiihooooooouuuuuuuuaaaaaaeccccoooooouuuuseeeeyniiiis'
-            ), '[^a-z0-9\-]+', ' ')),' ', '-') as id,
-            company_name AS name,
+        SELECT DISTINCT
+            t_tmp.company_id as id,
+            sgj.company_name AS name,
             null as remote_url
-        from 
-            staging_stackoverflow_jobs
-        where
-            id not in (select id from companies);
+        FROM 
+            (
+	           SELECT REPLACE(TRIM(regexp_replace(translate(
+		                LOWER(company_name),
+		                'áàâãäåāăąèééêëēĕėęěìíîïìĩīĭḩóôõöōŏőùúûüũūŭůäàáâãåæçćĉčöòóôõøüùúûßéèêëýñîìíïş',
+		                'aaaaaaaaaeeeeeeeeeeiiiiiiiihooooooouuuuuuuuaaaaaaeccccoooooouuuuseeeeyniiiis'
+		            ), '[^a-z0-9\-]+', ' ')),' ', '-') as company_id,
+		            MAX(id) AS job_id
+				FROM staging_stackoverflow_jobs
+				GROUP BY REPLACE(TRIM(regexp_replace(translate(
+				                LOWER(company_name),
+				                'áàâãäåāăąèééêëēĕėęěìíîïìĩīĭḩóôõöōŏőùúûüũūŭůäàáâãåæçćĉčöòóôõøüùúûßéèêëýñîìíïş',
+				                'aaaaaaaaaeeeeeeeeeeiiiiiiiihooooooouuuuuuuuaaaaaaeccccoooooouuuuseeeeyniiiis'
+				            ), '[^a-z0-9\-]+', ' ')),' ', '-')
+            ) t_tmp
+            LEFT JOIN staging_stackoverflow_jobs sgj ON (sgj.id = t_tmp.job_id)
+        WHERE
+            t_tmp.company_id NOT IN (SELECT id FROM companies);
     """)
 
     select_job_vacancies_from_stackoverflow_jobs = ("""
@@ -399,9 +393,9 @@ class SqlQueries:
             title as title,
             description as description,
             tags as tags,
-            null as salary,
-            null as salary_max,
-            null as salary_frequency,
+            CAST(null AS numeric) as salary,
+            CAST(null AS numeric) as salary_max,
+            CAST(null AS numeric) as salary_frequency,
             0 as has_relocation_package,
             published_at as published_at
         FROM
