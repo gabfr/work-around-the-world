@@ -13,6 +13,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 import time
 
+from crawlers.common import aws
+
 from pyvirtualdisplay import Display
 
 
@@ -114,7 +116,7 @@ def scroll_down_all_pages(driver):
 
     print('The current checksum is: ' + current_checksum)
     pages = result_pages_count(driver)
-    for i in range(1, pages):
+    for i in range(1, 4):#pages):
         print('page: {}/{}'.format(i, pages))
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
@@ -139,13 +141,17 @@ def save_all_startup_jobs(driver, output_directory):
     total_startups_divs = len(startups_divs)
     print('Total startups divs: {}'.format(total_startups_divs))
     startups_divs_it = 0
+    aws_credentials = aws.get_credentials()
     for startup_div in startups_divs:
         startups_divs_it = startups_divs_it + 1
         startup_div_id = startup_div.get_attribute('data-id')
         html_content = startup_div.get_attribute('outerHTML')
-        f = open('{}/{}.html'.format(output_directory, startup_div_id), 'w')
-        f.write(html_content)
-        f.close()
+        aws.create_file_on_s3_from_string(
+            html_content, 
+            '{}/{}.html'.format(output_directory, startup_div_id),
+            aws_credentials,
+            'text/html'
+        )
         print('Saving startup div {}/{}'.format(startups_divs_it, total_startups_divs))
 
 
@@ -209,7 +215,7 @@ def main():
 
     scroll_down_all_pages(driver)
 
-    save_all_startup_jobs(driver, 'crawlers/output')
+    save_all_startup_jobs(driver, 'crawlers/angel_co')
 
     display.stop()
 
