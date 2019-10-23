@@ -55,7 +55,7 @@ check_dimensions_tables = DataQualityOperator(
     task_id='check_dimensions_tables',
     dag=dag,
     pgsql_conn_id="pgsql",
-    tables=['companies', 'tags']
+    tables=['companies']
 )
 
 check_fact_table = DataQualityOperator(
