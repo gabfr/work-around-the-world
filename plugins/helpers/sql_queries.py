@@ -303,7 +303,7 @@ class SqlQueries:
             gross_salary_high as salary_max,
             'anually' as salary_frequency,
             relocation_paid as has_relocation_package,
-            TO_CHAR(expires_at, 'YYYY-MM-DD') as expires_at,
+            TO_CHAR(expires_at, 'YYYY-MM-DD')::timestamp as expires_at,
             created_at as published_at
         FROM
             staging_landing_jobs
