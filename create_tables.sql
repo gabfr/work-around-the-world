@@ -1,6 +1,6 @@
 drop table if exists public.job_vacancies;
 CREATE TABLE public.job_vacancies (
-	id VARCHAR(32) NOT NULL,
+	id VARCHAR(38) NOT NULL,
 	provider_id VARCHAR(255) NOT NULL,
 	remote_id_on_provider VARCHAR(500),
 	remote_url VARCHAR(500),
