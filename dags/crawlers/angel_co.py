@@ -116,7 +116,7 @@ def scroll_down_all_pages(driver):
 
     print('The current checksum is: ' + current_checksum)
     pages = result_pages_count(driver)
-    for i in range(1, 4):#pages):
+    for i in range(1, pages):
         print('page: {}/{}'.format(i, pages))
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
