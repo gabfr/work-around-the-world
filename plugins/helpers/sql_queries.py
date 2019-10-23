@@ -224,9 +224,9 @@ class SqlQueries:
             title as title,
             (description || '\n' || how_to_apply) as description,
             null as tags,
-            null as salary,
-            null as salary_max,
-            null as salary_frequency,
+            CAST(null AS numeric) as salary,
+            CAST(null AS numeric) as salary_max,
+            CAST(null AS numeric) as salary_frequency,
             0 as has_relocation_package,
             created_at as published_at
         FROM
