@@ -33,9 +33,12 @@ def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
                 if len(parsed_range) >= 2:
                     parsed_compensations['salary_max'] = Decimal(sub(r'[^\d.]', '', parsed_range[1]))
                 else:
-                    parsed_compensations['salary_max'] = Decimal(sub(r'[^\d.]', '', parsed_range[0]))
+                    if len(parsed_range) >= 1:
+                        parsed_compensations['salary_max'] = Decimal(sub(r'[^\d.]', '', parsed_range[0]))
             else:
                 print('no risks')
+                parsed_compensations['salary'] = None
+                parsed_compensations['salary_max'] = None
         if len(compensations) >= 2:
             parsed_compensations['description_equity_range'] = compensations[1].strip()
 
@@ -62,6 +65,7 @@ def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
             'expires_at': None,
             'published_at': str(datetime.now()), # @TODO: Needs to be reviewed. published_at is mandatory for this table
         }
+        print(job_infos)
         cursor.execute(SqlQueries.upsert_jobs_row, job_infos)
         jobs.append(job_infos)
         num_job_listings += 1
