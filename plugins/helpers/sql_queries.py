@@ -400,7 +400,7 @@ class SqlQueries:
             published_at as published_at
         FROM
             staging_stackoverflow_jobs
-        WHERE id NOT IN (SELECT j.id FROM job_vacancies j);
+        WHERE md5(id || '_stackoverflow_jobs') NOT IN (SELECT j.id FROM job_vacancies j);
     """)
 
     upsert_jobs_row = ("""
