@@ -227,6 +227,7 @@ this is done with a few clicks on the AWS dashboard.
    - [X] Refactor the angels.co DAG to use the airflow credentials management to store the angels.co email/password
    - [X] Refactor the angels.co DAG scrape task to save the scraped divs to S3 disk
    - [X] Refactor the angels.co DAG crawl task to traverse the scraped files saved to the S3 disk
-   - [ ] Fix the angel.co parser, moreover, the salary_* is not being parsed as it should. It is coming with the currency symbol. 
+   - [X] Fix the angel.co parser, moreover, the salary_* is not being parsed as it should. It is coming with the currency symbol. 
    We have to get rid of the currency symbol and cast it to double
+   - [ ] Somehow identify the currency that is being used to describe the salary of the job (maybe with the currency symbol itself?)
  - [ ] Create a simple web application to navigate/search in the data of these crawled jobs
