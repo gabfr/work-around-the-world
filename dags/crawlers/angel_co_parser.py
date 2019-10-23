@@ -5,6 +5,8 @@ from helpers import SqlQueries
 from psycopg2 import sql
 from datetime import datetime
 from crawlers.common import aws
+from decimal import Decimal
+from re import sub
 
 
 def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
@@ -27,11 +29,11 @@ def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
             if '–' in parsed_compensations['description_salary_range']:
                 parsed_range = list(map(lambda x: x.strip(), parsed_compensations['description_salary_range'].split('–')))
                 if len(parsed_range) >= 1:
-                    parsed_compensations['salary'] = parsed_range[0]
+                    parsed_compensations['salary'] = Decimal(sub(r'[^\d.]', '', parsed_range[0]))
                 if len(parsed_range) >= 2:
-                    parsed_compensations['salary_max'] = parsed_range[1]
+                    parsed_compensations['salary_max'] = Decimal(sub(r'[^\d.]', '', parsed_range[1]))
                 else:
-                    parsed_compensations['salary_max'] = parsed_range[0]
+                    parsed_compensations['salary_max'] = Decimal(sub(r'[^\d.]', '', parsed_range[0]))
             else:
                 print('no risks')
         if len(compensations) >= 2:
@@ -56,7 +58,7 @@ def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
             'tags': ",".join(list(map(lambda x: x.strip(), tags))),
             **parsed_compensations,
             'salary_frequency': None,
-            'has_relocation_package': True,
+            'has_relocation_package': 1,
             'expires_at': None,
             'published_at': str(datetime.now()), # @TODO: Needs to be reviewed. published_at is mandatory for this table
         }
