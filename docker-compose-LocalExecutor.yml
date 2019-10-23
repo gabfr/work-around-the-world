@@ -17,6 +17,7 @@ services:
         environment:
             - LOAD_EX=n
             - EXECUTOR=Local
+            - "FERNET_KEY=W7fNVig1np_TgpoH4OnJeqoyMK0rA_4aMZQFa429r5g="
         volumes:
             - ./dags:/usr/local/airflow/dags
             - ./plugins:/usr/local/airflow/plugins

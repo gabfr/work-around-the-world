@@ -14,15 +14,15 @@ default_args = {
     'end_date': datetime(2017, 1, 1),
     'depends_on_past': True,
     'retries': 1,
-    'retry_delay': timedelta(seconds=300),
-    'catchup': True
+    'retry_delay': timedelta(seconds=300)
 }
 
 dag = DAG('jobtechdev_se_historical_jobs_dag',
           default_args=default_args,
           description='Load the jobs dataset and insert into Redshift',
           schedule_interval='@yearly',
-          max_active_runs=1
+          max_active_runs=1,
+          catchup=False
         )
 
 recreate_staging_jobtechdev_jobs_table = PostgresOperator(

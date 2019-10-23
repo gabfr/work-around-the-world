@@ -11,14 +11,14 @@ default_args = {
     'start_date': datetime(2019, 10, 19),
     'depends_on_past': False,
     'retries': 1,
-    'retry_delay': timedelta(seconds=300),
-    'catchup': False
+    'retry_delay': timedelta(seconds=300)
 }
 
 dag = DAG('landing_jobs_api_dag',
           default_args=default_args,
           description='Load the jobs dataset and insert into PostgreSQL',
-          schedule_interval='@daily'
+          schedule_interval='@daily',
+          catchup=False
         )
 
 stage_landing_jobs = StageLandingJobsOperator(

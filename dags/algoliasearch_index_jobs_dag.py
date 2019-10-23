@@ -58,15 +58,15 @@ default_args = {
     'start_date': datetime(2019, 10, 19),
     'depends_on_past': False,
     'retries': 1,
-    'retry_delay': timedelta(seconds=300),
-    'catchup': False
+    'retry_delay': timedelta(seconds=300)
 }
 
 
 dag = DAG('algoliasearch_index_jobs_dag',
           default_args=default_args,
           description='Index all jobs from our PostgreSQL database',
-          schedule_interval='@daily'
+          schedule_interval='@daily',
+          catchup=False
         )
 
 wait_stackoverflow_jobs_rss_feed_dag = ExternalTaskSensor(

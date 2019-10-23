@@ -56,7 +56,7 @@ class StageStackoverflowJobsOperator(BaseOperator):
             registry = [
                 post.id, # 'id':
                 post.link, # 'remote_url':
-                post.location, # 'location':
+                post.location if 'location' in post else None, # 'location':
                 post.author, # 'company_name':
                 post.title, # 'title':
                 post.summary, # 'description':
