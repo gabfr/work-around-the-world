@@ -11,6 +11,7 @@ from re import sub
 
 def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
     jobListings = soup.select('.details-row.jobs > .content > .listing-row')
+    jobLocation = soup.select_one('.tags.locations')
     print(jobListings)
     num_job_listings = 0
     jobs = []
@@ -52,7 +53,7 @@ def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
             'provider_id': 'angels_co',
             'remote_id_on_provider': splitted_remote_url[ (len(splitted_remote_url) - 1) ],
             'remote_url': job_remote_url,
-            'location': None,
+            'location': jobLocation.get_text() if jobLocation else None,
             'currency_code': None,
             'company_id': company_infos['id'],
             'company_name': company_infos['name'],
