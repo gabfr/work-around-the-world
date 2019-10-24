@@ -231,3 +231,5 @@ this is done with a few clicks on the AWS dashboard.
    We have to get rid of the currency symbol and cast it to double
    - [X] Somehow identify the currency that is being used to describe the salary of the job (maybe with the currency symbol itself?)
  - [ ] Create a simple web application to navigate/search in the data of these crawled jobs
+ - [ ] Normalize the job location information
+ - [ ] Check the viability to fetch/save the company size too
