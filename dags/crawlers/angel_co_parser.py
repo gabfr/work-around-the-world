@@ -12,7 +12,6 @@ from re import sub
 def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
     jobListings = soup.select('.details-row.jobs > .content > .listing-row')
     jobLocation = soup.select_one('.tags.locations')
-    print(jobListings)
     num_job_listings = 0
     jobs = []
     for jobListing in jobListings:
@@ -37,7 +36,6 @@ def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
                     if len(parsed_range) >= 1:
                         parsed_compensations['salary_max'] = Decimal(sub(r'[^\d.]', '', parsed_range[0]))
             else:
-                print('no risks')
                 parsed_compensations['salary'] = None
                 parsed_compensations['salary_max'] = None
         if len(compensations) >= 2:
@@ -72,14 +70,12 @@ def parse_jobs_vacancies(soup, pgsql, cursor, company_infos):
         num_job_listings += 1
     if num_job_listings > 1:
         # print('MORE THAN ONE!')
-        print(jobs)
         return True
     return False
 
 
 def parse_company_infos(soup, pgsql, cursor):
     companyLinkElements = soup.select('.header-info .browse-table-row-name .startup-link')
-    print(companyLinkElements)
     for companyLinkElement in companyLinkElements:
         remote_url = companyLinkElement['href']
         remote_url_fragments = remote_url.split('/')
@@ -99,6 +95,7 @@ def handle_html(fileContent, pgsql, cursor):
     soup = BeautifulSoup(fileContent, features="html.parser")
     company_infos = parse_company_infos(soup, pgsql, cursor)
     parse_jobs_vacancies(soup, pgsql, cursor, company_infos)
+    pgsql.commit()
 
 
 def parse_html_scrapped(file_path, pgsql, cursor, aws_credentials):
@@ -111,8 +108,9 @@ def parse_html_scrapped(file_path, pgsql, cursor, aws_credentials):
 
 def main():
     # 0 - Prepare the database connection
-    pgsql = PostgresHook(postgres_conn_id="pgsql")
-    cur = pgsql.get_cursor()
+    pgsqlHook = PostgresHook(postgres_conn_id="pgsql")
+    pgsql = pgsqlHook.get_conn()
+    cur = pgsql.cursor()
     aws_credentials = aws.get_credentials()
 
     # 1 - open the output directory
