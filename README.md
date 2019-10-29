@@ -179,7 +179,7 @@ data on companies and tags:
 | Column | Type | Description |
 | ------ | ---- | ----------- |
 | `id` | `VARCHAR(500) NOT NULL` | The id of the company (a slugified version of its name). |
-| `name` | `VARCHAR(500) SORTKEY` | The name of the company |
+| `name` | `VARCHAR(500)` | The name of the company |
 | `remote_url` | `VARCHAR(500) DEFAULT NULL` | The url of the site of this company (if found on source) |
 
 #### Tags
@@ -198,8 +198,8 @@ data on companies and tags:
  
 | Column | Type | Description |
 | ------ | ---- | ----------- |
-| `id` | `VARCHAR(32) NOT NULL` | The primary key of this table. Identifies the job vacancy |
-| `provider_id` | `VARCHAR(255) NOT NULL DISTKEY` | The provider id means from which data sources it came from. Currently we have these sources: `jobtechdevse` (dataset), `dice_com` (dataset), `github_jobs` (api), `landing_jobs` (api), `stackoverflow_jobs` (api) |
+| `id` | `VARCHAR(255) NOT NULL` | The primary key of this table. Identifies the job vacancy |
+| `provider_id` | `VARCHAR(255) NOT NULL` | The provider id means from which data sources it came from. Currently we have these sources: `jobtechdevse` (dataset), `dice_com` (dataset), `github_jobs` (api), `landing_jobs` (api), `stackoverflow_jobs` (api) |
 | `remote_id_on_provider` | `VARCHAR(500)` | The identification of this job on the provider |
 | `remote_url` | `VARCHAR(500)` | The URL for the job posting (if exists) |
 | `location` | `VARCHAR(255)` | The location (city) of the job |
@@ -214,7 +214,7 @@ data on companies and tags:
 | `salary_frequency` | `VARCHAR(50) DEFAULT NULL` | The frequency of the salary. Usually `anually` (if has salary on the job post). |
 | `has_relocation_package` | `INT4 DEFAULT NULL` | Indicates wether this job vacancy offers relocation package for the candidate. (this does not means visa sponsorship) |
 | `expires_at` | `TIMESTAMP DEFAULT NULL` | When this job vacancy post will expire? |
-| `published_at` | `TIMESTAMP SORTKEY` | The date this job was posted. |
+| `published_at` | `TIMESTAMP` | The date this job was posted. |
 
 ## Future scenarios
 
