@@ -143,6 +143,21 @@ So I configured to run this DAG daily too.
 
 ![Stackoverflow RSS Feed DAG](https://raw.githubusercontent.com/gabfr/work-around-the-world/master/images/stackoverflow_jobs_rss_feed_dag.png)
 
+#### Angel.co jobs DAG
+
+ - Id: `angel_co_jobs_dag`
+ - Source Type: HTML Crawling (selenium)
+
+This DAG uses selenium to crawl the angel.co website and store all the HTML that contains job vacancies.
+
+#### Algolia Search Index Jobs DAG
+
+ - Id: `algoliasearch_index_jobs_dag`
+ - Source Type: Warehouse (Database)
+
+This DAG takes care of fetching all inserted jobs within the `job_vacancies` table and index it on the instant search engine
+called Algolia.
+
 ## Data Schema
 
 The purpose of this project is to assemble a dataset to ease query for jobs of a determined set of skills or company.
