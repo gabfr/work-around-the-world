@@ -12,7 +12,7 @@ import psycopg2
 def index_jobs(**context):
     pgsqlHook = PostgresHook(postgres_conn_id="pgsql")
     pgsql = pgsqlHook.get_conn()
-    cur = pgsql.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur = pgsql.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
     algolia_conn = BaseHook.get_connection('algolia')
     client = SearchClient.create(algolia_conn.login, algolia_conn.password)
@@ -20,7 +20,7 @@ def index_jobs(**context):
     
     jobs_sql_query = """
       SELECT 
-        j.id AS objectID,
+        j.id AS "objectID",
         j.provider_id AS provider_id,
         j.remote_id_on_provider AS remote_id_on_provider,
         j.remote_url AS remote_url,
