@@ -7,12 +7,12 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.hooks.postgres_hook import PostgresHook
 from algoliasearch.search_client import SearchClient
 from airflow.sensors.external_task_sensor import ExternalTaskSensor
+import psycopg2
 
 def index_jobs(**context):
-    global algolia_conn_id
-
-    pgsql = PostgresHook(postgres_conn_id="pgsql")
-    cur = pgsql.get_cursor()
+    pgsqlHook = PostgresHook(postgres_conn_id="pgsql")
+    pgsql = pgsqlHook.get_conn()
+    cur = pgsql.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     algolia_conn = BaseHook.get_connection('algolia')
     client = SearchClient.create(algolia_conn.login, algolia_conn.password)
@@ -35,17 +35,16 @@ def index_jobs(**context):
         j.salary_max AS salary_max,
         j.salary_frequency AS salary_frequency,
         j.has_relocation_package AS has_relocation_package,
-        j.expires_at AS expires_at,
-        j.published_at AS published_at,
+        EXTRACT(epoch from j.expires_at) AS expires_at,
+        EXTRACT(epoch from j.published_at) AS published_at,
         c.id AS child_company_id,
         c.name AS child_company_name,
-        c.remote_url AS child_company_remote_url,
+        c.remote_url AS child_company_remote_url
       FROM job_vacancies j
         LEFT JOIN companies c ON (c.id = j.company_id)
-      WHERE
-        CAST(j.published_at AS DATE) = '{}'::DATE
-    """.format(context['execution_date'])
-
+    """#.format(context['execution_date'])
+    #   WHERE
+    #     CAST(j.published_at AS DATE) = '{}'::DATE
     cur.execute(jobs_sql_query)
     rows = cur.fetchall()
     index.save_objects(rows)
