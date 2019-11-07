@@ -245,6 +245,7 @@ this is done with a few clicks on the AWS dashboard.
    - [X] Fix the angel.co parser, moreover, the salary_* is not being parsed as it should. It is coming with the currency symbol. 
    We have to get rid of the currency symbol and cast it to double
    - [X] Somehow identify the currency that is being used to describe the salary of the job (maybe with the currency symbol itself?)
+ - [X] Create a DAG to load the crawled `jobs` to the Algolia Search Provider, a free API to query those jobs
  - [ ] Test and make the Algolia DAG work
  - [ ] Create a simple web application to navigate/search in the data of these crawled jobs
  - [ ] Normalize the job location information
